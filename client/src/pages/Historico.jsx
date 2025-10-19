@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ToastProvider'
 import ModalConfirm from '../components/ModalConfirm'
+import useVantaNet from '../hooks/useVantaNet'
 
 export default function Historico() {
   const navigate = useNavigate()
   const [presencas, setPresencas] = useState([])
+  const vantaRef = useVantaNet()
 
   useEffect(() => {
     const raw = localStorage.getItem('presencas')
@@ -46,48 +48,49 @@ export default function Historico() {
 
   return (
     <>
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-          <section className="glass-panel p-6 sm:p-10 space-y-6">
-            <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div className="space-y-3">
-                <span className="chip">Seus comprovantes</span>
-                <div>
-                  <h1 className="text-3xl font-semibold sm:text-4xl">Histórico de presenças</h1>
-                  <p className="section-subtitle max-w-2xl">
-                    Consulte cada participação registrada neste dispositivo. Todos os dados são mantidos localmente para proteger sua privacidade.
-                  </p>
+      <div className="page-with-vanta" ref={vantaRef}>
+        <div className="page-with-vanta__content px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+            <section className="glass-panel p-6 sm:p-10 space-y-6">
+              <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="space-y-3">
+                  <span className="chip">Seus comprovantes</span>
+                  <div>
+                    <h1 className="text-3xl font-semibold sm:text-4xl">Histórico de presenças</h1>
+                    <p className="section-subtitle max-w-2xl">
+                      Consulte cada participação registrada neste dispositivo. Todos os dados são mantidos localmente para proteger sua privacidade.
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex flex-wrap gap-2">
-                <button className="btn-secondary" onClick={() => navigate('/home')} type="button">
-                  Voltar para a página inicial
-                </button>
-                <button className="btn-danger" onClick={limparHistorico} type="button">
-                  Limpar histórico
-                </button>
-              </div>
-            </header>
+                <div className="flex flex-wrap gap-2">
+                  <button className="btn-secondary" onClick={() => navigate('/home')} type="button">
+                    Voltar para a página inicial
+                  </button>
+                  <button className="btn-danger" onClick={limparHistorico} type="button">
+                    Limpar histórico
+                  </button>
+                </div>
+              </header>
 
-            <div className="summary-grid">
-              <article className="glass-panel glass-panel--subtle summary-card">
-                <span className="summary-card__label">Total de registros</span>
-                <span className="summary-card__value">{presencas.length}</span>
-                <p className="summary-card__label">Comprovantes salvos no armazenamento local.</p>
-              </article>
-              <article className="glass-panel glass-panel--subtle summary-card">
-                <span className="summary-card__label">Último evento</span>
-                <span className="summary-card__value text-xl">{ultimaPresenca ? ultimaPresenca.nomeEvento || ultimaPresenca.eventoID : 'Nenhum registro'}</span>
-                <p className="summary-card__label">{ultimaPresenca ? formatarData(ultimaPresenca) : 'Aguarde um novo registro para visualizar detalhes.'}</p>
-              </article>
-              <article className="glass-panel glass-panel--subtle summary-card">
-                <span className="summary-card__label">Primeiro registro</span>
-                <span className="summary-card__value text-xl">{primeiroRegistro ? primeiroRegistro.nomeEvento || primeiroRegistro.eventoID : '—'}</span>
-                <p className="summary-card__label">{primeiroRegistro ? formatarData(primeiroRegistro) : 'Nenhuma presença armazenada até o momento.'}</p>
-              </article>
-            </div>
-          </section>
+              <div className="summary-grid">
+                <article className="glass-panel glass-panel--subtle summary-card">
+                  <span className="summary-card__label">Total de registros</span>
+                  <span className="summary-card__value">{presencas.length}</span>
+                  <p className="summary-card__label">Comprovantes salvos no armazenamento local.</p>
+                </article>
+                <article className="glass-panel glass-panel--subtle summary-card">
+                  <span className="summary-card__label">Último evento</span>
+                  <span className="summary-card__value text-xl">{ultimaPresenca ? ultimaPresenca.nomeEvento || ultimaPresenca.eventoID : 'Nenhum registro'}</span>
+                  <p className="summary-card__label">{ultimaPresenca ? formatarData(ultimaPresenca) : 'Aguarde um novo registro para visualizar detalhes.'}</p>
+                </article>
+                <article className="glass-panel glass-panel--subtle summary-card">
+                  <span className="summary-card__label">Primeiro registro</span>
+                  <span className="summary-card__value text-xl">{primeiroRegistro ? primeiroRegistro.nomeEvento || primeiroRegistro.eventoID : '—'}</span>
+                  <p className="summary-card__label">{primeiroRegistro ? formatarData(primeiroRegistro) : 'Nenhuma presença armazenada até o momento.'}</p>
+                </article>
+              </div>
+            </section>
 
           {presencas.length === 0 ? (
             <section className="glass-panel glass-panel--subtle p-12 text-center">
@@ -140,6 +143,7 @@ export default function Historico() {
               </div>
             </section>
           )}
+          </div>
         </div>
       </div>
 
