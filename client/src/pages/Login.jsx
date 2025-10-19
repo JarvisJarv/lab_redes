@@ -86,9 +86,11 @@ const highlightItems = [
 
 export default function Login() {
   const navigate = useNavigate()
-  const [nome, setNome] = useState('')
-  const [matricula, setMatricula] = useState('')
+  const [createNome, setCreateNome] = useState('')
+  const [createMatricula, setCreateMatricula] = useState('')
   const [curso, setCurso] = useState(DEFAULT_CURSO)
+  const [loginNome, setLoginNome] = useState('')
+  const [loginMatricula, setLoginMatricula] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
@@ -121,7 +123,7 @@ export default function Login() {
     setError('')
     setMessage('')
 
-    if (!nome.trim() || !matricula.trim()) {
+    if (!createNome.trim() || !createMatricula.trim()) {
       setError('Nome e Matrícula são obrigatórios')
       return
     }
@@ -134,14 +136,14 @@ export default function Login() {
       const privateJwk = await exportPrivateKeyJwk(keyPair.privateKey)
 
       localStorage.setItem('privateKeyJwk', JSON.stringify(privateJwk))
-      persistProfile({ userName: nome.trim(), matricula: matricula.trim(), curso, did })
+      persistProfile({ userName: createNome.trim(), matricula: createMatricula.trim(), curso, did })
 
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userName: nome.trim(),
-          matricula: matricula.trim(),
+          userName: createNome.trim(),
+          matricula: createMatricula.trim(),
           curso,
           did,
           publicKey: publicKeyB64,
@@ -158,6 +160,8 @@ export default function Login() {
           ? `Usuário já registrado no backend. Identidade local salva. DID: ${did}`
           : `Identidade criada com sucesso. DID: ${did}`
       )
+      setLoginNome((prev) => prev || createNome.trim())
+      setLoginMatricula((prev) => prev || createMatricula.trim())
       setTimeout(() => navigate('/home'), CREATE_REDIRECT_DELAY)
     } catch (err) {
       console.error(err)
@@ -178,7 +182,7 @@ export default function Login() {
       return
     }
 
-    const enteredMatricula = matricula.trim()
+    const enteredMatricula = loginMatricula.trim()
     const storedMatricula = localStorage.getItem('matricula')
 
     const redirect = (text, delay = LOGIN_REDIRECT_DELAY) => {
@@ -338,8 +342,8 @@ export default function Login() {
                 <input
                   id="create-name"
                   type="text"
-                  value={nome}
-                  onChange={(event) => setNome(event.target.value)}
+                  value={createNome}
+                  onChange={(event) => setCreateNome(event.target.value)}
                   className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-slate-300/60 focus:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300/60"
                   placeholder="Ex: Maria Oliveira"
                 />
@@ -352,8 +356,8 @@ export default function Login() {
                   <input
                     id="create-matricula"
                     type="text"
-                    value={matricula}
-                    onChange={(event) => setMatricula(event.target.value)}
+                    value={createMatricula}
+                    onChange={(event) => setCreateMatricula(event.target.value)}
                     className="w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-slate-300/60 focus:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300/60"
                     placeholder="Ex: 2025001"
                   />
@@ -413,8 +417,8 @@ export default function Login() {
                   <input
                     id="login-name"
                     type="text"
-                    value={nome}
-                    onChange={(event) => setNome(event.target.value)}
+                    value={loginNome}
+                    onChange={(event) => setLoginNome(event.target.value)}
                     className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-300/60 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400/50"
                     placeholder="Como devemos chamá-lo(a)?"
                   />
@@ -424,15 +428,17 @@ export default function Login() {
                     <label className="font-medium text-blue-100" htmlFor="login-matricula">
                       Matrícula <span className="text-red-300">*</span>
                     </label>
-                    {!matricula.trim() && <span className="text-xs text-red-200">Obrigatória para autenticar</span>}
+                    {!loginMatricula.trim() && <span className="text-xs text-red-200">Obrigatória para autenticar</span>}
                   </div>
                   <input
                     id="login-matricula"
                     type="text"
-                    value={matricula}
-                    onChange={(event) => setMatricula(event.target.value)}
+                    value={loginMatricula}
+                    onChange={(event) => setLoginMatricula(event.target.value)}
                     className={`w-full rounded-xl border px-4 py-3 text-sm text-white placeholder:text-slate-300/60 focus:outline-none focus:ring-2 focus:ring-blue-400/50 ${
-                      matricula.trim() ? 'border-white/10 bg-white/5 focus:border-blue-300' : 'border-red-400/60 bg-red-400/10 focus:border-red-300'
+                      loginMatricula.trim()
+                        ? 'border-white/10 bg-white/5 focus:border-blue-300'
+                        : 'border-red-400/60 bg-red-400/10 focus:border-red-300'
                     }`}
                     placeholder="Digite a matrícula registrada"
                   />
@@ -441,7 +447,7 @@ export default function Login() {
                 <button
                   onClick={handleLogin}
                   className="inline-flex w-full items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 shadow-lg shadow-blue-500/10 transition-all duration-150 hover:-translate-y-0.5 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:pointer-events-none disabled:opacity-70"
-                  disabled={!matricula.trim()}
+                  disabled={!loginMatricula.trim()}
                 >
                   Acessar painel
                 </button>
