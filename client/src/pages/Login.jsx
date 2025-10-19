@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 // Helper: export ArrayBuffer para base64
@@ -43,6 +43,7 @@ function gerarDID() {
 // Aqui usamos localStorage para simplicidade do protótipo.
 
 export default function Login() {
+  const vantaRef = useRef(null)
   const [registerNome, setRegisterNome] = useState('')
   const [registerMatricula, setRegisterMatricula] = useState('')
   const [registerCurso, setRegisterCurso] = useState('Sistemas de Informação')
@@ -52,6 +53,74 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const navigate = useNavigate()
+
+  useEffect(() => {
+    let vantaEffect
+    let canceled = false
+
+    const loadScript = (src) =>
+      new Promise((resolve, reject) => {
+        const existing = document.querySelector(`script[src="${src}"]`)
+        if (existing) {
+          if (existing.getAttribute('data-loaded') === 'true') {
+            resolve()
+            return
+          }
+          existing.addEventListener('load', resolve, { once: true })
+          existing.addEventListener('error', reject, { once: true })
+          return
+        }
+
+        const script = document.createElement('script')
+        script.src = src
+        script.async = true
+        script.setAttribute('data-loaded', 'false')
+        script.onload = () => {
+          script.setAttribute('data-loaded', 'true')
+          resolve()
+        }
+        script.onerror = (event) => {
+          script.remove()
+          reject(event)
+        }
+        document.body.appendChild(script)
+      })
+
+    async function initVanta() {
+      try {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js')
+
+        if (canceled || !vantaRef.current || !window.VANTA || !window.VANTA.NET) return
+
+        vantaEffect = window.VANTA.NET({
+          el: vantaRef.current,
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.0,
+          minWidth: 200.0,
+          scale: 1.0,
+          scaleMobile: 1.0,
+          color: 0xffffff,
+          points: 15.0,
+          maxDistance: 16.0,
+          spacing: 16.0,
+        })
+      } catch (err) {
+        console.error('Erro ao inicializar animação Vanta:', err)
+      }
+    }
+
+    initVanta()
+
+    return () => {
+      canceled = true
+      if (vantaEffect) {
+        vantaEffect.destroy()
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const storedName = localStorage.getItem('userName') || ''
@@ -294,6 +363,7 @@ export default function Login() {
     'inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 px-4 py-3 font-semibold text-slate-900 shadow-lg shadow-cyan-500/20 transition hover:scale-[1.01] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-60'
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+      <div ref={vantaRef} className="absolute inset-0" aria-hidden="true" />
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-24 -top-32 h-96 w-96 rounded-full bg-cyan-500/30 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-[28rem] w-[28rem] rounded-full bg-indigo-500/20 blur-3xl" />
