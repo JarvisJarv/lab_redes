@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ToastProvider'
+import useVantaNet from '../hooks/useVantaNet'
 
 function gerarUUID() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
@@ -16,6 +17,7 @@ export default function Home() {
   const [codigo, setCodigo] = useState('')
   const [presencasCount, setPresencasCount] = useState(0)
   const [ultimaPresenca, setUltimaPresenca] = useState(null)
+  const vantaRef = useVantaNet()
 
   useEffect(() => {
     const d = localStorage.getItem('userDID') || ''
@@ -96,8 +98,10 @@ export default function Home() {
   const ultimoEvento = ultimaPresenca?.nomeEvento || ultimaPresenca?.eventoID || 'Sem nome definido'
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+    <>
+      <div className="page-with-vanta" ref={vantaRef}>
+        <div className="page-with-vanta__content px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         <section className="glass-panel glass-panel--highlight p-6 sm:p-10">
           <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
             <div className="flex-1 space-y-4">
@@ -209,6 +213,8 @@ export default function Home() {
             <li>Volte ao histórico para consultar, revisar ou validar participações passadas sempre que necessário.</li>
           </ol>
         </section>
+          </div>
+        </div>
       </div>
 
       {modalOpen && (
@@ -240,7 +246,7 @@ export default function Home() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
 

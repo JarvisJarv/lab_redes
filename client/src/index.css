@@ -512,3 +512,23 @@ tbody tr:last-child {
   justify-content: flex-end;
   gap: 0.75rem;
 }
+
+/* Vanta background wrapper */
+.page-with-vanta {
+  position: relative;
+  width: 100%;
+  background: #1d4452;
+}
+
+.page-with-vanta__content {
+  position: relative;
+  z-index: 1;
+}
+
+.page-with-vanta > canvas,
+.page-with-vanta > div.vanta-canvas {
+  position: absolute !important;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
