@@ -161,7 +161,7 @@ export default function Login() {
     // Verifica privateKey
     const pk = localStorage.getItem('privateKeyJwk')
     if (!pk) {
-      setError('Identidade não encontrada neste dispositivo. Crie identidade ou importe backup.')
+      setError('Identidade não encontrada neste dispositivo. Crie uma nova identidade.')
       return
     }
 
@@ -217,7 +217,7 @@ export default function Login() {
         }
         const arr = await res.json()
         if (!Array.isArray(arr) || arr.length === 0) {
-          setError('Usuário informado não existe no backend. Crie identidade ou importe backup para este usuário.')
+          setError('Usuário informado não existe no backend. Crie uma identidade para este usuário.')
           return
         }
         const user = arr[0]
@@ -266,7 +266,7 @@ export default function Login() {
         }
 
         // Se derivação ocorreu e não corresponde, não podemos autenticar com chave privada de outro usuário
-        setError('A chave privada presente neste dispositivo pertence a outra identidade. Importe o backup correto ou crie uma nova identidade para a matrícula informada.')
+        setError('A chave privada presente neste dispositivo pertence a outra identidade. Crie uma nova identidade para a matrícula informada.')
         return
       } catch (err) {
         console.error('Erro ao verificar usuário no backend:', err)
@@ -284,66 +284,7 @@ export default function Login() {
       return
     }
 
-    setError('Identidade incompleta. Informe matrícula ou importe seu backup.')
-  }
-
-  // Exporta backup (privateKeyJwk + metadados) como arquivo JSON para o usuário baixar
-  function handleExportBackup() {
-    const privateKeyJwk = localStorage.getItem('privateKeyJwk')
-    if (!privateKeyJwk) {
-      setError('Nenhuma chave privada encontrada para exportar')
-      return
-    }
-    const payload = {
-      privateKeyJwk: JSON.parse(privateKeyJwk),
-      userDID: localStorage.getItem('userDID') || null,
-      userName: localStorage.getItem('userName') || null,
-      matricula: localStorage.getItem('matricula') || null,
-      curso: localStorage.getItem('curso') || null,
-    }
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `identidade-backup-${Date.now()}.json`
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
-    setMessage('Backup gerado. Guarde o arquivo em local seguro.')
-  }
-
-  // Importa backup JSON (espera privateKeyJwk e metadados)
-  async function handleImportFile(e) {
-    const f = e.target.files && e.target.files[0]
-    if (!f) return
-    try {
-      const text = await f.text()
-      const obj = JSON.parse(text)
-      if (!obj.privateKeyJwk) throw new Error('Arquivo não contém privateKeyJwk')
-      localStorage.setItem('privateKeyJwk', JSON.stringify(obj.privateKeyJwk))
-      if (obj.userDID) localStorage.setItem('userDID', obj.userDID)
-      if (obj.userName) {
-        localStorage.setItem('userName', obj.userName)
-        setRegisterNome(obj.userName)
-        setLoginNome(obj.userName)
-      }
-      if (obj.matricula) {
-        localStorage.setItem('matricula', obj.matricula)
-        setRegisterMatricula(obj.matricula)
-        setLoginMatricula(obj.matricula)
-      }
-      if (obj.curso) {
-        localStorage.setItem('curso', obj.curso)
-        setRegisterCurso(obj.curso)
-      }
-      setMessage('Backup importado com sucesso. Você pode agora fazer Login.')
-      // limpa o input
-      e.target.value = ''
-    } catch (err) {
-      console.error(err)
-      setError('Falha ao importar backup: ' + (err.message || 'arquivo inválido'))
-    }
+    setError('Identidade incompleta. Informe matrícula ou crie uma nova identidade.')
   }
 
   const inputClassName =
@@ -351,9 +292,6 @@ export default function Login() {
   const subtleTextClass = 'text-sm text-slate-300'
   const primaryButtonClass =
     'inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 px-4 py-3 font-semibold text-slate-900 shadow-lg shadow-cyan-500/20 transition hover:scale-[1.01] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-60'
-  const secondaryButtonClass =
-    'inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:border-cyan-200 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200'
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
       <div className="pointer-events-none absolute inset-0">
@@ -435,7 +373,7 @@ export default function Login() {
             <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl sm:p-8">
               <h2 className="text-xl font-semibold text-white">Login rápido</h2>
               <p className="mt-1 text-sm text-slate-200">
-                Autentique-se com sua matrícula e chave privada local ou importe seu backup para continuar.
+                Autentique-se com sua matrícula e a chave privada armazenada neste dispositivo.
               </p>
 
               <form onSubmit={handleLogin} className="mt-6 space-y-5">
@@ -468,14 +406,6 @@ export default function Login() {
                 </button>
               </form>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <button onClick={handleExportBackup} className={secondaryButtonClass}>
-                  Exportar backup
-                </button>
-                <label className={`${secondaryButtonClass} cursor-pointer`}>Importar backup
-                  <input type="file" accept="application/json" onChange={handleImportFile} className="hidden" />
-                </label>
-              </div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-100 backdrop-blur-xl sm:p-7">
@@ -483,7 +413,7 @@ export default function Login() {
               <ul className="mt-3 space-y-2 text-sm text-slate-200">
                 <li className="flex items-start gap-2">
                   <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                  Guarde o arquivo de backup em um local seguro e privado.
+                  Utilize sempre dispositivos confiáveis e mantenha-os protegidos.
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
