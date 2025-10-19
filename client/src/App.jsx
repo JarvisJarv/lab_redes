@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import Login from './pages/Login'
 import Home from './pages/Home'
 import Historico from './pages/Historico'
+import Presenca from './pages/Presenca'
 import Header from './components/Header'
 
 function Protected({ children }) {
@@ -45,6 +46,7 @@ export default function App() {
         >
           <Route path="/home" element={<Home />} />
           <Route path="/historico" element={<Historico />} />
+          <Route path="/presenca" element={<Presenca />} />
         </Route>
       </Routes>
     </BrowserRouter>
