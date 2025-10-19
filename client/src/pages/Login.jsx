@@ -135,13 +135,13 @@ export default function Login() {
       if (!res.ok) {
         if (res.status === 409) {
           // Usuário já registrado no backend — não é fatal, prosseguimos com identidade local
-          setMessage(`Usuário já registrado no backend. Identidade local salva. DID: ${did}`)
+          setMessage('Usuário já registrado no backend. Identidade local salva com segurança.')
         } else {
           const txt = await res.text()
           throw new Error(txt || 'Erro ao registrar usuário no backend')
         }
       } else {
-        setMessage(`Identidade criada com sucesso. DID: ${did}`)
+        setMessage('Identidade criada com sucesso e protegida neste dispositivo.')
       }
       setLoginNome(registerNome.trim())
       setLoginMatricula(registerMatricula.trim())
