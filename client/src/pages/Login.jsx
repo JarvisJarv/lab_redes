@@ -43,15 +43,33 @@ function gerarDID() {
 // Aqui usamos localStorage para simplicidade do protótipo.
 
 export default function Login() {
-  const [nome, setNome] = useState('')
-  const [matricula, setMatricula] = useState('')
-  const [curso, setCurso] = useState('Sistemas de Informação')
+  const [registerNome, setRegisterNome] = useState('')
+  const [registerMatricula, setRegisterMatricula] = useState('')
+  const [registerCurso, setRegisterCurso] = useState('Sistemas de Informação')
+  const [loginNome, setLoginNome] = useState('')
+  const [loginMatricula, setLoginMatricula] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
+    const storedName = localStorage.getItem('userName') || ''
+    const storedMatricula = localStorage.getItem('matricula') || ''
+    const storedCurso = localStorage.getItem('curso') || ''
+
+    if (storedName) {
+      setRegisterNome(storedName)
+      setLoginNome(storedName)
+    }
+    if (storedMatricula) {
+      setRegisterMatricula(storedMatricula)
+      setLoginMatricula(storedMatricula)
+    }
+    if (storedCurso) {
+      setRegisterCurso(storedCurso)
+    }
+
     const existing = localStorage.getItem('userDID')
     if (existing) {
       navigate('/home')
@@ -84,7 +102,7 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setMessage('')
-    if (!nome.trim() || !matricula.trim()) {
+    if (!registerNome.trim() || !registerMatricula.trim()) {
       setError('Nome e Matrícula são obrigatórios')
       return
     }
@@ -98,15 +116,21 @@ export default function Login() {
       // Salva privateKey no localStorage (JWK). Em produção, usar IndexedDB e encriptação.
       localStorage.setItem('privateKeyJwk', JSON.stringify(privateJwk))
       localStorage.setItem('userDID', did)
-      localStorage.setItem('userName', nome.trim())
-      localStorage.setItem('matricula', matricula.trim())
-      localStorage.setItem('curso', curso)
+      localStorage.setItem('userName', registerNome.trim())
+      localStorage.setItem('matricula', registerMatricula.trim())
+      localStorage.setItem('curso', registerCurso)
 
       // Envia publicKey ao backend
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userName: nome.trim(), matricula: matricula.trim(), curso, did, publicKey: publicKeyB64 }),
+        body: JSON.stringify({
+          userName: registerNome.trim(),
+          matricula: registerMatricula.trim(),
+          curso: registerCurso,
+          did,
+          publicKey: publicKeyB64,
+        }),
       })
       if (!res.ok) {
         if (res.status === 409) {
@@ -119,6 +143,8 @@ export default function Login() {
       } else {
         setMessage(`Identidade criada com sucesso. DID: ${did}`)
       }
+      setLoginNome(registerNome.trim())
+      setLoginMatricula(registerMatricula.trim())
       setTimeout(() => navigate('/home'), 1200)
     } catch (err) {
       console.error(err)
@@ -139,7 +165,8 @@ export default function Login() {
       return
     }
 
-    const enteredMat = (matricula || '').toString().trim()
+    const trimmedLoginName = loginNome.trim()
+    const enteredMat = (loginMatricula || '').toString().trim()
     const storedMat = localStorage.getItem('matricula')
 
     // Caso o usuário tenha digitado a matrícula e ela coincida com a local -> permitir
@@ -165,7 +192,15 @@ export default function Login() {
       }
     }
 
+    const persistLoginName = () => {
+      if (trimmedLoginName) {
+        localStorage.setItem('userName', trimmedLoginName)
+        setLoginNome(trimmedLoginName)
+      }
+    }
+
     if (enteredMat && storedMat && enteredMat === storedMat) {
+      persistLoginName()
       await ensureProfile(enteredMat)
       setMessage('Autenticado — redirecionando...')
       setTimeout(() => navigate('/home'), 600)
@@ -188,29 +223,31 @@ export default function Login() {
         const user = arr[0]
         const localDid = localStorage.getItem('userDID')
         // Se o DID do backend corresponder ao DID local, permitir
-          if (localDid && user.did === localDid) {
+        if (localDid && user.did === localDid) {
           // restaura nome/matricula se necessário
-            if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
-            if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
-            await ensureProfile(enteredMat)
-            setMessage('Autenticado — redirecionando...')
-            setTimeout(() => navigate('/home'), 600)
-            return
+          if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
+          if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
+          persistLoginName()
+          await ensureProfile(enteredMat)
+          setMessage('Autenticado — redirecionando...')
+          setTimeout(() => navigate('/home'), 600)
+          return
         }
 
         // Tentar derivar a publicKey do privateKeyJwk local e comparar com a do backend
         const localPrivateJwk = localStorage.getItem('privateKeyJwk')
         if (localPrivateJwk) {
           const derivedPubB64 = await publicSpkiBase64FromPrivateJwkString(localPrivateJwk)
-            if (derivedPubB64 && user.publicKey && derivedPubB64 === user.publicKey) {
+          if (derivedPubB64 && user.publicKey && derivedPubB64 === user.publicKey) {
             // corresponde — autenticar
-              if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
-              if (!localStorage.getItem('userDID')) localStorage.setItem('userDID', user.did || '')
-              if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
-              await ensureProfile(enteredMat)
-              setMessage('Autenticado — redirecionando...')
-              setTimeout(() => navigate('/home'), 600)
-              return
+            if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
+            if (!localStorage.getItem('userDID')) localStorage.setItem('userDID', user.did || '')
+            if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
+            persistLoginName()
+            await ensureProfile(enteredMat)
+            setMessage('Autenticado — redirecionando...')
+            setTimeout(() => navigate('/home'), 600)
+            return
           }
 
           // Se derivação falhou (null), permitir fallback — alerta o usuário
@@ -220,6 +257,7 @@ export default function Login() {
             if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
             if (!localStorage.getItem('userDID')) localStorage.setItem('userDID', user.did || '')
             if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
+            persistLoginName()
             await ensureProfile(enteredMat)
             setMessage('Autenticado por fallback (não foi possível derivar publicKey local). Redirecionando...')
             setTimeout(() => navigate('/home'), 600)
@@ -240,6 +278,7 @@ export default function Login() {
     // Nenhuma matrícula digitada: se tiver DID local, permitir; caso contrário, bloquear
     const localDid = localStorage.getItem('userDID')
     if (localDid) {
+      persistLoginName()
       setMessage('Autenticado — redirecionando...')
       setTimeout(() => navigate('/home'), 600)
       return
@@ -284,9 +323,20 @@ export default function Login() {
       if (!obj.privateKeyJwk) throw new Error('Arquivo não contém privateKeyJwk')
       localStorage.setItem('privateKeyJwk', JSON.stringify(obj.privateKeyJwk))
       if (obj.userDID) localStorage.setItem('userDID', obj.userDID)
-      if (obj.userName) localStorage.setItem('userName', obj.userName)
-      if (obj.matricula) localStorage.setItem('matricula', obj.matricula)
-      if (obj.curso) localStorage.setItem('curso', obj.curso)
+      if (obj.userName) {
+        localStorage.setItem('userName', obj.userName)
+        setRegisterNome(obj.userName)
+        setLoginNome(obj.userName)
+      }
+      if (obj.matricula) {
+        localStorage.setItem('matricula', obj.matricula)
+        setRegisterMatricula(obj.matricula)
+        setLoginMatricula(obj.matricula)
+      }
+      if (obj.curso) {
+        localStorage.setItem('curso', obj.curso)
+        setRegisterCurso(obj.curso)
+      }
       setMessage('Backup importado com sucesso. Você pode agora fazer Login.')
       // limpa o input
       e.target.value = ''
@@ -346,16 +396,30 @@ export default function Login() {
             <form onSubmit={handleCreateIdentity} className="mt-8 space-y-5">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-100">Nome completo</label>
-                <input value={nome} onChange={(e) => setNome(e.target.value)} className={inputClassName} placeholder="Ex: Maria Silva" />
+                <input
+                  value={registerNome}
+                  onChange={(e) => setRegisterNome(e.target.value)}
+                  className={inputClassName}
+                  placeholder="Ex: Maria Silva"
+                />
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-100">Matrícula</label>
-                  <input value={matricula} onChange={(e) => setMatricula(e.target.value)} className={inputClassName} placeholder="Ex: 2025001" />
+                  <input
+                    value={registerMatricula}
+                    onChange={(e) => setRegisterMatricula(e.target.value)}
+                    className={inputClassName}
+                    placeholder="Ex: 2025001"
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-100">Curso</label>
-                  <input value={curso} onChange={(e) => setCurso(e.target.value)} className={inputClassName} />
+                  <input
+                    value={registerCurso}
+                    onChange={(e) => setRegisterCurso(e.target.value)}
+                    className={inputClassName}
+                  />
                 </div>
               </div>
               <p className={subtleTextClass}>
@@ -377,24 +441,29 @@ export default function Login() {
               <form onSubmit={handleLogin} className="mt-6 space-y-5">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-100">Nome (opcional)</label>
-                  <input value={nome} onChange={(e) => setNome(e.target.value)} className={inputClassName} placeholder="Como deseja ser chamado?" />
+                  <input
+                    value={loginNome}
+                    onChange={(e) => setLoginNome(e.target.value)}
+                    className={inputClassName}
+                    placeholder="Como deseja ser chamado?"
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-100">
                     Matrícula <span className="text-red-300">*</span>
                   </label>
                   <input
-                    value={matricula}
-                    onChange={(e) => setMatricula(e.target.value)}
-                    className={`${inputClassName} ${!matricula.trim() ? 'ring-1 ring-red-400/80' : ''}`}
+                    value={loginMatricula}
+                    onChange={(e) => setLoginMatricula(e.target.value)}
+                    className={`${inputClassName} ${!loginMatricula.trim() ? 'ring-1 ring-red-400/80' : ''}`}
                     placeholder="Informe sua matrícula"
                   />
-                  {!matricula.trim() && (
+                  {!loginMatricula.trim() && (
                     <span className="text-xs text-red-200">A matrícula é obrigatória para realizar o login.</span>
                   )}
                 </div>
 
-                <button type="submit" className={primaryButtonClass} disabled={!matricula.trim()}>
+                <button type="submit" className={primaryButtonClass} disabled={!loginMatricula.trim()}>
                   Entrar agora
                 </button>
               </form>
