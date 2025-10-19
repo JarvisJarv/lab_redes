@@ -86,9 +86,11 @@ const highlightItems = [
 
 export default function Login() {
   const navigate = useNavigate()
-  const [nome, setNome] = useState('')
-  const [matricula, setMatricula] = useState('')
+  const [createNome, setCreateNome] = useState('')
+  const [createMatricula, setCreateMatricula] = useState('')
   const [curso, setCurso] = useState(DEFAULT_CURSO)
+  const [loginNome, setLoginNome] = useState('')
+  const [loginMatricula, setLoginMatricula] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
@@ -121,7 +123,7 @@ export default function Login() {
     setError('')
     setMessage('')
 
-    if (!nome.trim() || !matricula.trim()) {
+    if (!createNome.trim() || !createMatricula.trim()) {
       setError('Nome e Matrícula são obrigatórios')
       return
     }
@@ -134,14 +136,14 @@ export default function Login() {
       const privateJwk = await exportPrivateKeyJwk(keyPair.privateKey)
 
       localStorage.setItem('privateKeyJwk', JSON.stringify(privateJwk))
-      persistProfile({ userName: nome.trim(), matricula: matricula.trim(), curso, did })
+      persistProfile({ userName: createNome.trim(), matricula: createMatricula.trim(), curso, did })
 
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userName: nome.trim(),
-          matricula: matricula.trim(),
+          userName: createNome.trim(),
+          matricula: createMatricula.trim(),
           curso,
           did,
           publicKey: publicKeyB64,
@@ -158,6 +160,8 @@ export default function Login() {
           ? `Usuário já registrado no backend. Identidade local salva. DID: ${did}`
           : `Identidade criada com sucesso. DID: ${did}`
       )
+      setLoginNome((prev) => prev || createNome.trim())
+      setLoginMatricula((prev) => prev || createMatricula.trim())
       setTimeout(() => navigate('/home'), CREATE_REDIRECT_DELAY)
     } catch (err) {
       console.error(err)
@@ -178,7 +182,7 @@ export default function Login() {
       return
     }
 
-    const enteredMatricula = matricula.trim()
+    const enteredMatricula = loginMatricula.trim()
     const storedMatricula = localStorage.getItem('matricula')
 
     const redirect = (text, delay = LOGIN_REDIRECT_DELAY) => {
