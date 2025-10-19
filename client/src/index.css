@@ -1,0 +1,27 @@
+/* Basic CSS fallback when Tailwind is not processed by PostCSS in the editor */
+html, body, #root { height: 100%; }
+body { background-color: #1F7A8C; color: white; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+
+/* card helper */
+.card { background: white; color: #1F2937; border-radius: 0.5rem; box-shadow: 0 1px 6px rgba(0,0,0,0.12); }
+
+/* Buttons */
+.btn-primary { background: #0ea5a4; color: white; padding: 0.6rem 1rem; border-radius: 0.5rem; transition: transform .08s ease, box-shadow .12s ease; border: none; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(2,6,23,0.2); }
+.btn-secondary { background: #2563eb; color: white; padding: 0.5rem 0.9rem; border-radius: 0.5rem; }
+
+/* Inputs */
+input, textarea, select { border-radius: 0.5rem; border: 1px solid rgba(0,0,0,0.08); padding: 0.5rem; }
+input:focus, textarea:focus, select:focus { outline: none; box-shadow: 0 0 0 4px rgba(14,165,164,0.12); border-color: rgba(14,165,164,0.9); }
+
+.text-success { color: #16A34A; }
+.text-error { color: #DC2626; }
+
+/* Table helpers */
+table { border-collapse: collapse; width: 100%; }
+th, td { padding: 0.75rem 0.5rem; }
+thead th { background: #f3f4f6; color: #374151; }
+
+/* Toasts */
+.toast-container { position: fixed; right: 1rem; top: 5rem; z-index: 60; display: flex; flex-direction: column; gap: 0.5rem; }
+.toast { background: rgba(255,255,255,0.97); color: #0f172a; padding: 0.75rem 1rem; border-radius: 0.5rem; box-shadow: 0 6px 18px rgba(2,6,23,0.2); }
