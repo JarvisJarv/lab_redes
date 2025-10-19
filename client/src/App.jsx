@@ -14,9 +14,13 @@ function Protected({ children }) {
 
 function Layout() {
   return (
-    <div>
+    <div className="app-shell">
+      <div className="app-shell__background" aria-hidden="true">
+        <div className="app-shell__gradient" />
+        <div className="app-shell__grid" />
+      </div>
       <Header />
-      <main className="pt-20 min-h-[calc(100vh-5rem)]">
+      <main className="app-shell__content">
         <Outlet />
       </main>
     </div>
