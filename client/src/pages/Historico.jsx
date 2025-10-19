@@ -110,7 +110,6 @@ export default function Historico() {
                       <tr>
                         <th>Evento</th>
                         <th>Data e hora</th>
-                        <th>DID</th>
                         <th>Hash</th>
                       </tr>
                     </thead>
@@ -119,7 +118,6 @@ export default function Historico() {
                         <tr key={idx}>
                           <td>{p.nomeEvento || p.eventoID}</td>
                           <td>{formatarData(p)}</td>
-                          <td className="break-words">{p.did}</td>
                           <td className="break-words">{p.hash}</td>
                         </tr>
                       ))}
@@ -133,8 +131,10 @@ export default function Historico() {
                   <article key={idx} className="history-card">
                     <div className="history-card__title">{p.nomeEvento || p.eventoID}</div>
                     <div className="history-card__meta">Registrado em {formatarData(p)}</div>
-                    <div className="history-card__meta">DID: {p.did}</div>
                     <div className="history-card__meta">Hash: {p.hash}</div>
+                    <div className="history-card__meta text-xs text-slate-300">
+                      Identificador descentralizado armazenado com segurança pelo sistema.
+                    </div>
                   </article>
                 ))}
               </div>

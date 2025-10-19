@@ -80,20 +80,8 @@ export default function Home() {
     }
   }
 
-  function handleCopyDid() {
-    if (!did) {
-      show('DID não disponível no momento')
-      return
-    }
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(did).then(
-        () => show('DID copiado para a área de transferência!'),
-        () => show('Não foi possível copiar o DID')
-      )
-    } else {
-      show('Copie o DID manualmente: recurso indisponível neste navegador')
-    }
+  function abrirLeitorQr() {
+    show('Aponte a câmera do dispositivo para o QR Code disponível no evento para registrar sua presença.')
   }
 
   const ultimoRegistro = useMemo(() => {
@@ -117,7 +105,7 @@ export default function Home() {
               <div>
                 <h1 className="text-3xl font-semibold sm:text-4xl">Gerencie suas presenças digitais</h1>
                 <p className="section-subtitle max-w-xl">
-                  Bem-vindo{userName ? `, ${userName}` : ''}! Acompanhe seus comprovantes, registre novos eventos e mantenha seu DID sempre por perto.
+                  Bem-vindo{userName ? `, ${userName}` : ''}! Acompanhe seus comprovantes, registre novos eventos e mantenha suas presenças sempre organizadas.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -132,17 +120,14 @@ export default function Home() {
 
             <aside className="glass-panel glass-panel--subtle w-full max-w-sm space-y-4 p-5">
               <header className="space-y-1">
-                <span className="chip">Seu DID</span>
-                <p className="text-sm text-slate-300">Use este identificador para validar sua participação em eventos.</p>
+                <span className="chip">Identificador protegido</span>
+                <p className="text-sm text-slate-300">Seu identificador descentralizado é gerenciado automaticamente pela aplicação e permanece oculto para sua segurança.</p>
               </header>
-              <div className="rounded-lg border border-dashed border-slate-500/60 bg-black/20 p-4 text-sm leading-relaxed">
-                {did || '— DID não encontrado —'}
+              <div className="rounded-lg border border-dashed border-slate-500/60 bg-black/20 p-4 text-sm leading-relaxed text-slate-300">
+                Apenas a aplicação possui acesso ao identificador quando necessário.
               </div>
               <div className="flex flex-wrap gap-2">
-                <button className="btn-secondary" onClick={handleCopyDid} type="button">
-                  Copiar DID
-                </button>
-                <span className="badge">Confidencial</span>
+                <span className="badge">Acesso restrito</span>
               </div>
             </aside>
           </div>
@@ -162,7 +147,7 @@ export default function Home() {
           <article className="glass-panel summary-card">
             <span className="summary-card__label">Evento mais recente</span>
             <span className="summary-card__value text-xl">{ultimaPresenca ? ultimoEvento : 'Aguardando registro'}</span>
-            <p className="summary-card__label">Mantenha seu DID atualizado para futuras confirmações.</p>
+            <p className="summary-card__label">Mantenha seus comprovantes atualizados para futuras confirmações.</p>
           </article>
         </section>
 
@@ -182,6 +167,9 @@ export default function Home() {
                 <button className="btn-primary" onClick={abrirModal} type="button">
                   Registrar agora
                 </button>
+                <button className="btn-secondary" onClick={abrirLeitorQr} type="button">
+                  Ler QR Code
+                </button>
               </div>
             </article>
 
@@ -198,14 +186,11 @@ export default function Home() {
             </article>
 
             <article className="quick-card">
-              <div className="quick-card__title">Proteja seu DID</div>
+              <div className="quick-card__title">Mantenha tudo sincronizado</div>
               <p className="quick-card__description">
-                O seu identificador descentralizado é único. Compartilhe apenas com organizadores confiáveis e mantenha-o seguro.
+                Os seus comprovantes ficam armazenados com segurança neste dispositivo. Sincronize com a organização sempre que necessário.
               </p>
               <div className="quick-card__footer">
-                <button className="btn-secondary" onClick={handleCopyDid} type="button">
-                  Copiar identificador
-                </button>
                 <span className="badge badge--success">Seguro</span>
               </div>
             </article>
@@ -218,7 +203,7 @@ export default function Home() {
             <p className="section-subtitle">Siga as etapas abaixo para aproveitar todo o potencial do sistema.</p>
           </header>
           <ol className="info-list list-decimal">
-            <li>Garanta que seu dispositivo esteja autenticado com o DID informado acima.</li>
+            <li>Garanta que seu dispositivo esteja autenticado com as credenciais fornecidas pela instituição.</li>
             <li>Ao chegar em um evento, utilize o botão &quot;Registrar presença&quot; para escanear ou inserir o código.</li>
             <li>Confirme os detalhes do evento e salve seu comprovante localmente.</li>
             <li>Volte ao histórico para consultar, revisar ou validar participações passadas sempre que necessário.</li>
