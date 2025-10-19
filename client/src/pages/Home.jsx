@@ -2,28 +2,29 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ToastProvider'
 
+const STORAGE_KEY = 'presencas'
+
 function gerarUUID() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
+  }
   return Math.random().toString(36).slice(2) + Date.now().toString(36)
 }
 
 export default function Home() {
   const navigate = useNavigate()
+  const { show } = useToast()
   const [did, setDid] = useState('')
   const [userName, setUserName] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [codigo, setCodigo] = useState('')
 
   useEffect(() => {
-    const d = localStorage.getItem('userDID') || ''
-    const n = localStorage.getItem('userName') || ''
-    setDid(d)
-    setUserName(n)
+    setDid(localStorage.getItem('userDID') || '')
+    setUserName(localStorage.getItem('userName') || '')
   }, [])
 
   function abrirModal() {
-    const { show } = useToast()
-
     setCodigo('')
     setModalOpen(true)
   }
@@ -35,27 +36,27 @@ export default function Home() {
   function confirmarPresenca() {
     const codigoTrim = (codigo || '').toString().trim()
     if (!codigoTrim) {
-      showToast('Por favor, informe o código do evento')
+      show('Por favor, informe o código do evento')
       return
     }
 
-    const obj = {
+    const registro = {
       eventoID: codigoTrim,
-      nomeEvento: codigoTrim || 'Evento sem nome',
+      nomeEvento: codigoTrim,
       dataHora: new Date().toISOString(),
-      did: did,
+      did,
       hash: gerarUUID(),
     }
 
     try {
-      const raw = localStorage.getItem('presencas')
+      const raw = localStorage.getItem(STORAGE_KEY)
       const arr = raw ? JSON.parse(raw) : []
-      arr.push(obj)
-      localStorage.setItem('presencas', JSON.stringify(arr))
+      arr.push(registro)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr))
       fecharModal()
       show('Presença registrada com sucesso!')
     } catch (err) {
-      console.error(err)
+      console.error('Erro ao salvar presença:', err)
       show('Erro ao salvar presença')
     }
   }
