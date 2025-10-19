@@ -1,0 +1,20 @@
+# Dependências do projeto Trabalho Blockchain
+# Instale cada pacote utilizando o gerenciador de pacotes Node.js (npm, yarn ou pnpm)
+
+## Dependências definidas na raiz (scripts utilitários)
+concurrently@8.2.2
+
+## Backend (server/)
+cors@2.8.5
+express@4.21.2
+nodemon@3.1.10
+
+## Frontend (client/)
+react@18.3.1
+react-dom@18.3.1
+react-router-dom@6.30.1
+@vitejs/plugin-react@4.7.0
+autoprefixer@10.4.21
+postcss@8.5.6
+tailwindcss@3.4.18
+vite@5.4.20
