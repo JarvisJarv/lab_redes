@@ -39,9 +39,12 @@ try {
         usersUpdated = true;
         updatedUser = { ...updatedUser, profilePhoto: '' };
       }
-      if (typeof u.publicKey !== 'string' || u.publicKey.length > 120) {
+      if (typeof u.publicKey !== 'string') {
         usersUpdated = true;
         updatedUser = { ...updatedUser, publicKey: '' };
+      } else if (u.publicKey.length > 512) {
+        usersUpdated = true;
+        updatedUser = { ...updatedUser, publicKey: u.publicKey.slice(0, 512) };
       }
       return updatedUser;
     });
@@ -71,7 +74,7 @@ function salvarUsers() {
 // POST /api/register
 // Recebe { userName, matricula, curso, did }
 app.post('/api/register', (req, res) => {
-  const { userName, matricula, curso, did } = req.body || {}
+  const { userName, matricula, curso, did, publicKey } = req.body || {}
   if (!userName || !matricula || !did) {
     return res
       .status(400)
@@ -91,7 +94,10 @@ app.post('/api/register', (req, res) => {
     did,
     createdAt: new Date().toISOString(),
     profilePhoto: typeof req.body.profilePhoto === 'string' ? req.body.profilePhoto : '',
-    publicKey: '',
+    publicKey:
+      typeof publicKey === 'string' && publicKey.length > 0
+        ? publicKey.slice(0, 512)
+        : '',
   }
   users.push(user)
   salvarUsers()
