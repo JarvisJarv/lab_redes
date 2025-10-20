@@ -335,6 +335,21 @@ export default function Login() {
                 <h2 className="text-xl font-semibold text-white">Login rápido</h2>
                 <p className="mt-1 text-sm text-slate-200">Autentique-se com seu Nome e matrícula.</p>
 
+                {(error || message) && (
+                  <div className="mt-6 space-y-2 text-sm">
+                    {error && (
+                      <div className="rounded-xl border border-red-300/30 bg-red-900/30 px-4 py-3 text-red-200">
+                        {error}
+                      </div>
+                    )}
+                    {message && (
+                      <div className="rounded-xl border border-emerald-300/30 bg-emerald-900/20 px-4 py-3 text-emerald-200">
+                        {message}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <form onSubmit={handleLogin} className="mt-6 space-y-5">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-100">
@@ -343,9 +358,12 @@ export default function Login() {
                     <input
                       value={loginNome}
                       onChange={(e) => setLoginNome(e.target.value)}
-                      className={inputClassName}
+                      className={`${inputClassName} ${!loginNome.trim() ? 'ring-1 ring-red-400/80' : ''}`}
                       placeholder="Insira seu nome"
                     />
+                    {!loginNome.trim() && (
+                      <span className="text-xs text-red-200">O nome é obrigatório para realizar o login.</span>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-100">
@@ -395,11 +413,6 @@ export default function Login() {
                 </ul>
               </div>
             </div>
-          </div>
-
-          <div className="space-y-2 text-sm">
-            {error && <div className="text-red-200">{error}</div>}
-            {message && <div className="text-emerald-200">{message}</div>}
           </div>
         </div>
       </div>
