@@ -233,6 +233,20 @@ a {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.app-header__avatar.is-readonly {
+  cursor: default;
+}
+
+.app-header__avatar.is-readonly:hover,
+.app-header__avatar.is-readonly:focus-visible {
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: 0 12px 22px -18px rgba(15, 23, 42, 0.9);
+}
+
+.app-header__avatar.is-readonly .app-header__avatar-indicator {
+  display: none;
+}
+
 .app-header__avatar:hover,
 .app-header__avatar:focus-visible {
   border-color: rgba(148, 163, 184, 0.6);
@@ -617,8 +631,8 @@ a {
 }
 
 .participant-profile__photo {
-  width: 4.75rem;
-  height: 4.75rem;
+  width: 6rem;
+  height: 6rem;
   border-radius: 999px;
   overflow: hidden;
   display: inline-flex;
@@ -627,7 +641,7 @@ a {
   background: rgba(15, 23, 42, 0.7);
   border: 1px solid rgba(148, 163, 184, 0.28);
   color: rgba(226, 232, 240, 0.85);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
