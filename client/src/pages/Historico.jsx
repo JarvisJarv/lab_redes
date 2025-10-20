@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ToastProvider'
-import ModalConfirm from '../components/ModalConfirm'
 import useVantaNet from '../hooks/useVantaNet'
 import { downloadHistoryReport } from '../utils/report'
 
@@ -31,18 +30,6 @@ export default function Historico() {
   }, [])
 
   const { show } = useToast()
-  const [confirmOpen, setConfirmOpen] = useState(false)
-
-  function limparHistorico() {
-    setConfirmOpen(true)
-  }
-
-  function doLimpar() {
-    localStorage.removeItem('presencas')
-    setPresencas([])
-    setConfirmOpen(false)
-    show('Histórico limpo')
-  }
 
   function gerarRelatorio() {
     if (!presencas.length) {
@@ -92,20 +79,36 @@ export default function Historico() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
                   <button className="btn-secondary" onClick={() => navigate('/home')} type="button">
                     Voltar para a página inicial
                   </button>
                   <button
-                    className="btn-primary"
+                    className="btn-primary inline-flex items-center justify-center gap-2"
                     onClick={gerarRelatorio}
                     type="button"
                     disabled={presencas.length === 0}
+                    title={
+                      presencas.length === 0
+                        ? 'Adicione presenças antes de gerar um relatório'
+                        : 'Baixar um arquivo com o histórico completo'
+                    }
                   >
-                    Gerar relatório
-                  </button>
-                  <button className="btn-danger" onClick={limparHistorico} type="button">
-                    Limpar histórico
+                    <svg
+                      aria-hidden="true"
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 5v10" />
+                      <path d="M6 11l6 6 6-6" />
+                      <rect width="18" height="4" x="3" y="19" rx="1" />
+                    </svg>
+                    <span>Gerar relatório</span>
                   </button>
                 </div>
               </header>
@@ -183,14 +186,6 @@ export default function Historico() {
           </div>
         </div>
       </div>
-
-      <ModalConfirm
-        open={confirmOpen}
-        title="Limpar histórico"
-        message="Deseja realmente remover todos os comprovantes armazenados neste dispositivo?"
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={doLimpar}
-      />
     </>
   )
 }
