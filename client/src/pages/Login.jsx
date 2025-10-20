@@ -337,19 +337,7 @@ export default function Login() {
         const localPrivateJwk = localStorage.getItem('privateKeyJwk')
         if (localPrivateJwk) {
           const derivedPubB64 = await publicSpkiBase64FromPrivateJwkString(localPrivateJwk)
-          if (derivedPubB64 && user.publicKey && derivedPubB64 === user.publicKey) {
-            // corresponde — autenticar
-            if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
-            if (!localStorage.getItem('userDID')) localStorage.setItem('userDID', user.did || '')
-            if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
-            persistLoginName()
-            await ensureProfile(enteredMat)
-            setMessage('Autenticado — redirecionando...')
-            setTimeout(() => navigate('/home'), 600)
-            return
-          }
 
-          // Se derivação falhou (null), permitir fallback — alerta o usuário
           if (derivedPubB64 === null) {
             // Não foi possível derivar a publicKey localmente; como existe privateKey e usuário no backend,
             // prosseguimos com um login por matrícula (fallback). Em produção, não é recomendado sem verificação.
@@ -362,10 +350,33 @@ export default function Login() {
             setTimeout(() => navigate('/home'), 600)
             return
           }
+
+          if (!user.publicKey) {
+            if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
+            if (!localStorage.getItem('userDID')) localStorage.setItem('userDID', user.did || '')
+            if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
+            persistLoginName()
+            await ensureProfile(enteredMat)
+            setMessage('Autenticado — chave pública não registrada no backend. Redirecionando...')
+            setTimeout(() => navigate('/home'), 600)
+            return
+          }
+
+          if (derivedPubB64 && derivedPubB64 === user.publicKey) {
+            if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
+            if (!localStorage.getItem('userDID')) localStorage.setItem('userDID', user.did || '')
+            if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
+            persistLoginName()
+            await ensureProfile(enteredMat)
+            setMessage('Autenticado — redirecionando...')
+            setTimeout(() => navigate('/home'), 600)
+            return
+          }
         }
 
-        // Se derivação ocorreu e não corresponde, não podemos autenticar com chave privada de outro usuário
-        setError('A chave privada presente neste dispositivo pertence a outra identidade. Crie uma nova identidade para a matrícula informada.')
+        setError(
+          'A chave privada presente neste dispositivo pertence a outra identidade. Crie uma nova identidade para a matrícula informada.'
+        )
         return
       } catch (err) {
         console.error('Erro ao verificar usuário no backend:', err)

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { loadProfilePhoto, removeProfilePhoto, saveProfilePhoto } from '../utils/profilePhotoStorage'
+import labLogo from '../assets/lab-logo.png'
+import PhotoModal from './PhotoModal'
 
 export default function Header() {
   const navigate = useNavigate()
@@ -11,9 +13,13 @@ export default function Header() {
   const did = !isAdmin ? localStorage.getItem('userDID') || '' : ''
   const matricula = !isAdmin ? localStorage.getItem('matricula') || '' : ''
   const storageSignature = `${isAdmin ? 'admin' : 'user'}|${did}|${matricula}`
-  const [profilePhoto, setProfilePhoto] = useState(() => loadProfilePhoto({ isAdmin, did, matricula }))
+  const [profilePhoto, setProfilePhoto] = useState(() =>
+    isAdmin ? '' : loadProfilePhoto({ isAdmin, did, matricula })
+  )
   const fileInputRef = useRef(null)
   const signatureRef = useRef(storageSignature)
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false)
+  const [photoModalAlt, setPhotoModalAlt] = useState('')
 
   const chipLabel = isAdmin ? 'Administrador' : nome ? 'Bem-vindo' : 'Sistema'
   const titleLabel = isAdmin ? 'Painel Administrativo' : 'Sistema de Presenças'
@@ -48,6 +54,10 @@ export default function Header() {
   }, [])
 
   useEffect(() => {
+    if (isAdmin) {
+      return
+    }
+
     if (signatureRef.current !== storageSignature) {
       signatureRef.current = storageSignature
       setProfilePhoto(loadProfilePhoto({ isAdmin, did, matricula }))
@@ -105,6 +115,10 @@ export default function Header() {
   }
 
   function handleProfilePhotoChange(event) {
+    if (isAdmin) {
+      return
+    }
+
     const file = event.target.files?.[0]
 
     if (!file) {
@@ -127,12 +141,38 @@ export default function Header() {
   }
 
   function handleRemoveProfilePhoto() {
+    if (isAdmin) {
+      return
+    }
+
     setProfilePhoto('')
     removeProfilePhoto({ isAdmin, did, matricula })
     persistProfilePhotoToServer('')
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  const displayedPhoto = isAdmin ? labLogo : profilePhoto
+  const hasPhoto = Boolean(displayedPhoto)
+  const canEditPhoto = !isAdmin
+
+  function openPhotoModal() {
+    if (!hasPhoto) return
+    const altText = isAdmin
+      ? 'Logo do laboratório ampliada'
+      : `Foto de perfil de ${nome || 'usuário'} ampliada`
+    setPhotoModalAlt(altText)
+    setIsPhotoModalOpen(true)
+  }
+
+  function closePhotoModal() {
+    setIsPhotoModalOpen(false)
+  }
+
+  function triggerPhotoUpload() {
+    if (!canEditPhoto) return
+    fileInputRef.current?.click()
   }
 
   function toggleMenu() {
@@ -144,41 +184,69 @@ export default function Header() {
       <div className="app-header__inner">
         <div className="app-header__brand">
           <div className="app-header__profile">
-            <label
-              htmlFor="profile-photo-input"
+            <button
+              type="button"
               className="app-header__avatar"
-              title="Atualizar foto de perfil"
+              onClick={() => {
+                if (hasPhoto) {
+                  openPhotoModal()
+                } else {
+                  triggerPhotoUpload()
+                }
+              }}
+              title={
+                isAdmin
+                  ? 'Visualizar logo do administrador'
+                  : hasPhoto
+                  ? 'Ampliar foto de perfil'
+                  : 'Adicionar foto de perfil'
+              }
             >
-              {profilePhoto ? (
+              {hasPhoto ? (
                 <img
-                  src={profilePhoto}
-                  alt={`Foto de perfil de ${nome || 'usuário'}`}
+                  src={displayedPhoto}
+                  alt={isAdmin ? 'Logo padrão do administrador' : `Foto de perfil de ${nome || 'usuário'}`}
                 />
               ) : (
                 <span aria-hidden="true">{profileInitials}</span>
               )}
               <span className="app-header__avatar-indicator" aria-hidden="true">
-                Atualizar
+                {hasPhoto ? 'Ampliar' : canEditPhoto ? 'Adicionar' : ''}
               </span>
-            </label>
-            <input
-              ref={fileInputRef}
-              id="profile-photo-input"
-              className="app-header__profile-input"
-              type="file"
-              accept="image/*"
-              onChange={handleProfilePhotoChange}
-            />
-            {profilePhoto ? (
-              <button
-                type="button"
-                className="app-header__avatar-remove"
-                onClick={handleRemoveProfilePhoto}
-              >
-                Remover foto
-              </button>
+            </button>
+            {canEditPhoto ? (
+              <>
+                <input
+                  ref={fileInputRef}
+                  id="profile-photo-input"
+                  className="app-header__profile-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePhotoChange}
+                />
+                {profilePhoto ? (
+                  <div className="app-header__avatar-actions">
+                    <button
+                      type="button"
+                      className="app-header__avatar-button"
+                      onClick={triggerPhotoUpload}
+                    >
+                      Trocar foto
+                    </button>
+                    <button
+                      type="button"
+                      className="app-header__avatar-button"
+                      onClick={handleRemoveProfilePhoto}
+                    >
+                      Remover foto
+                    </button>
+                  </div>
+                ) : (
+                  <span className="app-header__avatar-hint">Adicionar foto</span>
+                )}
+              </>
             ) : (
-              <span className="app-header__avatar-hint">Adicionar foto</span>
+              <span className="app-header__avatar-hint">Logo padrão</span>
             )}
           </div>
           <div>
@@ -240,6 +308,12 @@ export default function Header() {
           <span />
         </button>
       </div>
+      <PhotoModal
+        isOpen={isPhotoModalOpen}
+        src={displayedPhoto}
+        alt={photoModalAlt}
+        onClose={closePhotoModal}
+      />
     </header>
   )
 }
