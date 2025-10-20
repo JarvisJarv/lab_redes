@@ -88,5 +88,14 @@
     "nomeEvento": "Noite de verao",
     "dataHora": "2025-10-20T04:18:06.202Z",
     "hash": "vcj7h3ez"
+  },
+  {
+    "id": "9ef2htsn",
+    "userId": null,
+    "did": "did:simulado:bf29e023-c537-415d-a0e3-c5b1f66841b8",
+    "eventoID": "dawdawdaw",
+    "nomeEvento": "dawdawdaw",
+    "dataHora": "2025-10-20T04:41:26.895Z",
+    "hash": "7yygluhy"
   }
 ]
