@@ -542,6 +542,12 @@ a {
   padding: 0.75rem 0.9rem;
 }
 
+.event-group__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(226, 232, 240, 0.9);
+}
+
 .event-group__meta {
   font-size: 0.95rem;
   font-weight: 600;

@@ -376,7 +376,6 @@ export default function AdminDashboard() {
                             {grupo.registros[0]?.dataHora ? formatDateTime(grupo.registros[0].dataHora) : '—'}
                           </p>
                         </div>
-                        {grupo.eventoID ? <span className="badge">ID: {grupo.eventoID}</span> : null}
                       </header>
 
                       <ol className="event-group__list">
@@ -387,6 +386,7 @@ export default function AdminDashboard() {
                           >
                             <div className="event-group__marker" aria-hidden="true" />
                             <div className="event-group__content">
+                              <span className="event-group__title">{grupo.nomeEvento}</span>
                               <span className="event-group__meta">{formatDateTime(presenca.dataHora)}</span>
                               <span className="event-group__hash" title={presenca.hash || 'Hash não informado'}>
                                 {presenca.hash || 'Hash não informado'}
