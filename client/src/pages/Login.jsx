@@ -225,7 +225,7 @@ export default function Login() {
         }
         const arr = await res.json()
         if (!Array.isArray(arr) || arr.length === 0) {
-          setError('Usuário informado não existe no backend. Crie uma identidade para este usuário.')
+          setError('Usuário informado não existe no cadastro. Crie uma identidade para este usuário.')
           return
         }
         const user = arr[0]
@@ -274,7 +274,7 @@ export default function Login() {
         }
 
         setError(
-          'A chave privada presente neste dispositivo pertence a outra identidade. Entre em contato com um administrador para restaurar a identidade correta.'
+          'A identidade informada existe, mas este dispositivo não possui a chave privada correspondente. Gere a identidade neste aparelho ou procure um administrador para liberar o acesso.'
         )
         return
       } catch (err) {
