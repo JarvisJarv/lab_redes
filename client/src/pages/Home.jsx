@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ToastProvider'
 import useVantaNet from '../hooks/useVantaNet'
+import { loadProfilePhoto } from '../utils/profilePhotoStorage'
 
 function gerarUUID() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
@@ -13,6 +14,8 @@ export default function Home() {
   const { show } = useToast()
   const [did, setDid] = useState('')
   const [userName, setUserName] = useState('')
+  const [matricula, setMatricula] = useState('')
+  const [profilePhoto, setProfilePhoto] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [codigo, setCodigo] = useState('')
   const [registrando, setRegistrando] = useState(false)
@@ -75,10 +78,22 @@ export default function Home() {
   useEffect(() => {
     const d = localStorage.getItem('userDID') || ''
     const n = localStorage.getItem('userName') || ''
+    const m = localStorage.getItem('matricula') || ''
     setDid(d)
     setUserName(n)
+    setMatricula(m)
     carregarPresencas(d)
   }, [])
+
+  useEffect(() => {
+    if (!did && !matricula) {
+      setProfilePhoto('')
+      return
+    }
+
+    const foto = loadProfilePhoto({ isAdmin: false, did, matricula })
+    setProfilePhoto(foto)
+  }, [did, matricula])
 
   function abrirModal() {
     setCodigo('')
@@ -182,6 +197,22 @@ export default function Home() {
 
   const ultimoEvento = ultimaPresenca?.nomeEvento || ultimaPresenca?.eventoID || 'Sem nome definido'
 
+  const participantInitials = useMemo(() => {
+    if (!userName) return 'P'
+    return userName
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((parte) => parte[0]?.toUpperCase())
+      .join('')
+  }, [userName])
+
+  const profilePhotoAlt = useMemo(
+    () => (userName ? `Foto do participante ${userName}` : 'Foto do participante autenticado'),
+    [userName]
+  )
+
   return (
     <>
       <div className="page-with-vanta" ref={vantaRef}>
@@ -196,6 +227,26 @@ export default function Home() {
                 <p className="section-subtitle max-w-xl">
                   Bem-vindo{userName ? `, ${userName}` : ''}! Acompanhe seus comprovantes, registre novos eventos e mantenha suas presenças sempre organizadas.
                 </p>
+              </div>
+              <div className="participant-profile">
+                <div className="participant-profile__photo">
+                  {profilePhoto ? (
+                    <img
+                      src={profilePhoto}
+                      alt={profilePhotoAlt}
+                    />
+                  ) : (
+                    <span>{participantInitials}</span>
+                  )}
+                </div>
+                <div className="participant-profile__details">
+                  <p className="participant-profile__name">{userName || 'Participante autenticado'}</p>
+                  <p className="participant-profile__caption">
+                    {profilePhoto
+                      ? 'Esta é a foto vinculada ao seu perfil no sistema.'
+                      : 'Adicione uma foto pelo menu de configurações no topo para personalizar seu perfil.'}
+                  </p>
+                </div>
               </div>
               <div className="flex flex-wrap gap-3">
                 <button className="btn-primary" onClick={abrirModal} type="button">
