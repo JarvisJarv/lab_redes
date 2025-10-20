@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 export default function PhotoModal({ isOpen, src, alt, onClose }) {
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function PhotoModal({ isOpen, src, alt, onClose }) {
     event.stopPropagation()
   }
 
-  return (
+  const modalContent = (
     <div
       className="photo-modal"
       role="dialog"
@@ -51,4 +52,10 @@ export default function PhotoModal({ isOpen, src, alt, onClose }) {
       </div>
     </div>
   )
+
+  if (typeof document === 'undefined') {
+    return modalContent
+  }
+
+  return createPortal(modalContent, document.body)
 }
