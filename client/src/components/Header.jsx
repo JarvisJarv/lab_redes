@@ -236,20 +236,19 @@ export default function Header() {
               <div className="app-header__avatar-wrapper">
                 <button
                   type="button"
-                  className="app-header__avatar"
+                  className={`app-header__avatar ${hasPhoto ? '' : 'is-readonly'}`.trim()}
                   onClick={() => {
                     if (hasPhoto) {
                       openPhotoModal()
-                    } else {
-                      triggerPhotoUpload()
                     }
                   }}
+                  aria-disabled={!hasPhoto}
                   title={
                     isAdmin
                       ? 'Visualizar logo do administrador'
                       : hasPhoto
                       ? 'Ampliar foto de perfil'
-                      : 'Adicionar foto de perfil'
+                      : 'Foto de perfil disponível apenas após adicionar uma imagem nas configurações'
                   }
                 >
                   {hasPhoto ? (
@@ -265,7 +264,7 @@ export default function Header() {
                     <span aria-hidden="true">{profileInitials}</span>
                   )}
                   <span className="app-header__avatar-indicator" aria-hidden="true">
-                    {hasPhoto ? 'Ampliar' : canEditPhoto ? 'Adicionar' : ''}
+                    {hasPhoto ? 'Ampliar' : ''}
                   </span>
                 </button>
                 {canEditPhoto ? (
@@ -279,15 +278,6 @@ export default function Header() {
                   />
                 ) : null}
               </div>
-              {canEditPhoto && !profilePhoto ? (
-                <button
-                  type="button"
-                  className="app-header__avatar-button app-header__avatar-button--add"
-                  onClick={triggerPhotoUpload}
-                >
-                  Adicionar foto
-                </button>
-              ) : null}
             </div>
           </div>
           <div>

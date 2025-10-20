@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ToastProvider'
 import useVantaNet from '../hooks/useVantaNet'
@@ -85,30 +85,43 @@ export default function Home() {
     carregarPresencas(d)
   }, [])
 
+  const profileStorageContext = useMemo(
+    () => ({ isAdmin: false, did, matricula }),
+    [did, matricula],
+  )
+  const profileStorageKey = useMemo(
+    () => getProfilePhotoStorageKey(profileStorageContext),
+    [profileStorageContext],
+  )
+  const profileKeyRef = useRef(profileStorageKey)
+
+  useEffect(() => {
+    profileKeyRef.current = profileStorageKey
+  }, [profileStorageKey])
+
   useEffect(() => {
     if (!did && !matricula) {
       setProfilePhoto('')
       return
     }
 
-    const context = { isAdmin: false, did, matricula }
-    const foto = loadProfilePhoto(context)
+    const foto = loadProfilePhoto(profileStorageContext)
     setProfilePhoto(foto)
-  }, [did, matricula])
+  }, [did, matricula, profileStorageContext])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
       return undefined
     }
 
-    const context = { isAdmin: false, did, matricula }
-    const key = getProfilePhotoStorageKey(context)
-
     function handleProfilePhotoUpdate(event) {
-      if (!event?.detail || event.detail.key !== key) {
+      const eventKey = event?.detail?.key
+      if (!eventKey || eventKey !== profileKeyRef.current) {
         return
       }
-      setProfilePhoto(event.detail.dataUrl || '')
+
+      const nextPhoto = typeof event.detail.dataUrl === 'string' ? event.detail.dataUrl : ''
+      setProfilePhoto(nextPhoto)
     }
 
     window.addEventListener('profile-photo-updated', handleProfilePhotoUpdate)
@@ -116,7 +129,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('profile-photo-updated', handleProfilePhotoUpdate)
     }
-  }, [did, matricula])
+  }, [])
 
   function abrirModal() {
     setCodigo('')
