@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { loadProfilePhoto, removeProfilePhoto, saveProfilePhoto } from '../utils/profilePhotoStorage'
 import labLogo from '../assets/lab-logo.png'
+import configIcon from '../assets/config.png'
 import PhotoModal from './PhotoModal'
 
 export default function Header() {
@@ -268,71 +269,14 @@ export default function Header() {
                   </span>
                 </button>
                 {canEditPhoto ? (
-                  <>
-                    <input
-                      ref={fileInputRef}
-                      id="profile-photo-input"
-                      className="app-header__profile-input"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleProfilePhotoChange}
-                    />
-                    <button
-                      type="button"
-                      className={`app-header__settings-toggle ${
-                        isPhotoSettingsOpen ? 'is-open' : ''
-                      }`}
-                      onClick={togglePhotoSettings}
-                      aria-haspopup="true"
-                      aria-expanded={isPhotoSettingsOpen}
-                      aria-controls="photo-settings-panel"
-                      ref={photoSettingsButtonRef}
-                    >
-                      <span className="sr-only">Abrir configurações da foto</span>
-                      <svg
-                        className="app-header__settings-toggle-icon"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path
-                          d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm8.94-3.5a1 1 0 0 0-.2-.6l-1.36-1.82a8.08 8.08 0 0 0 .08-1l1.55-1.11a1 1 0 0 0 .36-1.1l-.7-2.16a1 1 0 0 0-1.02-.68l-1.9.2a7.93 7.93 0 0 0-.86-.5l-.29-1.88a1 1 0 0 0-.78-.82l-2.2-.48a1 1 0 0 0-1.08.48l-.94 1.67h-1.04l-.94-1.67a1 1 0 0 0-1.08-.48l-2.2.48a1 1 0 0 0-.78.82l-.3 1.88c-.29.15-.57.32-.85.5l-1.91-.2a1 1 0 0 0-1.02.68l-.7 2.16a1 1 0 0 0 .36 1.1l1.56 1.11a8.08 8.08 0 0 0 .08 1L3.26 11.4a1 1 0 0 0-.2.6 1 1 0 0 0 .2.6l1.36 1.82a8.08 8.08 0 0 0-.08 1l-1.55 1.11a1 1 0 0 0-.36 1.1l.7 2.16a1 1 0 0 0 1.02.68l1.9-.2c.28.18.56.35.86.5l.29 1.88a1 1 0 0 0 .78.82l2.2.48a1 1 0 0 0 1.08-.48l.94-1.67h1.04l.94 1.67a1 1 0 0 0 1.08.48l2.2-.48a1 1 0 0 0 .78-.82l.3-1.88c.29-.15.57-.32.85-.5l1.91.2a1 1 0 0 0 1.02-.68l.7-2.16a1 1 0 0 0-.36-1.1L20 14.52a8.08 8.08 0 0 0-.08-1l1.55-1.11a1 1 0 0 0 .36-1.41Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </button>
-                    {isPhotoSettingsOpen ? (
-                      <div
-                        id="photo-settings-panel"
-                        className="app-header__settings-panel"
-                        role="menu"
-                        ref={photoSettingsMenuRef}
-                      >
-                        <p className="app-header__settings-title">Foto de perfil</p>
-                        <button
-                          type="button"
-                          className="app-header__settings-action"
-                          onClick={() => {
-                            triggerPhotoUpload()
-                            setIsPhotoSettingsOpen(false)
-                          }}
-                          role="menuitem"
-                        >
-                          Alterar foto
-                        </button>
-                        {profilePhoto ? (
-                          <button
-                            type="button"
-                            className="app-header__settings-action app-header__settings-action--danger"
-                            onClick={handleRemoveProfilePhoto}
-                            role="menuitem"
-                          >
-                            Remover foto
-                          </button>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </>
+                  <input
+                    ref={fileInputRef}
+                    id="profile-photo-input"
+                    className="app-header__profile-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePhotoChange}
+                  />
                 ) : null}
               </div>
               {canEditPhoto && !profilePhoto ? (
@@ -345,9 +289,6 @@ export default function Header() {
                 </button>
               ) : null}
             </div>
-            {!canEditPhoto ? (
-              <span className="app-header__avatar-hint">Logo padrão</span>
-            ) : null}
           </div>
           <div>
             <div className="chip">{chipLabel}</div>
@@ -383,6 +324,63 @@ export default function Header() {
               </NavLink>
             </>
           )}
+
+          {canEditPhoto ? (
+            <div className="app-header__settings-wrapper">
+              <button
+                type="button"
+                className={`app-header__settings-toggle ${
+                  isPhotoSettingsOpen ? 'is-open' : ''
+                }`}
+                onClick={() => {
+                  togglePhotoSettings()
+                  setMenuOpen(false)
+                }}
+                aria-haspopup="true"
+                aria-expanded={isPhotoSettingsOpen}
+                aria-controls="photo-settings-panel"
+                ref={photoSettingsButtonRef}
+              >
+                <span className="sr-only">Abrir configurações da foto</span>
+                <img
+                  src={configIcon}
+                  alt="Configurações da foto de perfil"
+                  className="app-header__settings-toggle-image"
+                />
+              </button>
+              {isPhotoSettingsOpen ? (
+                <div
+                  id="photo-settings-panel"
+                  className="app-header__settings-panel"
+                  role="menu"
+                  ref={photoSettingsMenuRef}
+                >
+                  <p className="app-header__settings-title">Foto de perfil</p>
+                  <button
+                    type="button"
+                    className="app-header__settings-action"
+                    onClick={() => {
+                      triggerPhotoUpload()
+                      setIsPhotoSettingsOpen(false)
+                    }}
+                    role="menuitem"
+                  >
+                    Alterar foto
+                  </button>
+                  {profilePhoto ? (
+                    <button
+                      type="button"
+                      className="app-header__settings-action app-header__settings-action--danger"
+                      onClick={handleRemoveProfilePhoto}
+                      role="menuitem"
+                    >
+                      Remover foto
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           <button
             onClick={() => {
