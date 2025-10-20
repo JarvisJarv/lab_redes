@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 import Historico from './pages/Historico'
 import Header from './components/Header'
+import Footer from './components/Footer'
 
 function Protected({ children }) {
   const userDID = localStorage.getItem('userDID')
@@ -23,6 +24,7 @@ function Layout() {
       <main className="app-shell__content">
         <Outlet />
       </main>
+      <Footer />
     </div>
   )
 }
