@@ -1084,6 +1084,23 @@ tbody tr:last-child {
   background: #1d4452;
 }
 
+.page-with-vanta[data-vanta-disabled='true'] {
+  background: linear-gradient(160deg, rgba(13, 148, 136, 0.32), rgba(37, 99, 235, 0.24)), #0f172a;
+  transition: background 160ms ease-in;
+}
+
+.page-with-vanta[data-vanta-disabled='true']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(20, 184, 166, 0.22), transparent 60%),
+    radial-gradient(circle at 80% 10%, rgba(37, 99, 235, 0.18), transparent 55%),
+    radial-gradient(circle at 50% 85%, rgba(14, 116, 144, 0.24), transparent 60%);
+  filter: blur(60px);
+  z-index: 0;
+  pointer-events: none;
+}
+
 .page-with-vanta__content {
   position: relative;
   z-index: 1;
