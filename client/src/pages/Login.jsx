@@ -393,7 +393,7 @@ export default function Login() {
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-10">
         <div className="mb-10 text-center lg:text-left">
           <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
-            Identidade Self-Sovereign
+            Self-sovereign identity
           </span>
           <h1 className="mt-6 text-3xl font-semibold sm:text-4xl lg:text-5xl">
             Entre com segurança e crie sua identidade digital acadêmica

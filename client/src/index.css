@@ -159,6 +159,12 @@ a {
 }
 
 /* Header */
+
+.app-header__link.active {
+  color: var(--brand-primary);
+  font-weight: 600;
+  background: rgba(20, 184, 166, 0.12); 
+}
 .app-header {
   position: fixed;
   inset: 0 auto auto 0;
