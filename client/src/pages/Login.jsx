@@ -474,7 +474,7 @@ export default function Login() {
                     value={loginNome}
                     onChange={(e) => setLoginNome(e.target.value)}
                     className={inputClassName}
-                    placeholder="Como deseja ser chamado?"
+                    placeholder="Insira seu nome"
                   />
                 </div>
                 <div className="space-y-2">
