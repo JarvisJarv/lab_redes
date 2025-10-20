@@ -43,7 +43,7 @@ function gerarDID() {
 // Aqui usamos localStorage para simplicidade do protótipo.
 
 export default function Login() {
-  const vantaRef = useRef(null)
+  const particlesContainerId = useRef('login-particles-bg')
   const [registerNome, setRegisterNome] = useState('')
   const [registerMatricula, setRegisterMatricula] = useState('')
   const [registerCurso, setRegisterCurso] = useState('Sistemas de Informação')
@@ -55,7 +55,7 @@ export default function Login() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    let vantaEffect
+    let particlesInstance
     let canceled = false
 
     const loadScript = (src) =>
@@ -86,39 +86,41 @@ export default function Login() {
         document.body.appendChild(script)
       })
 
-    async function initVanta() {
+    async function initParticles() {
       try {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js')
+        await loadScript('https://cdn.jsdelivr.net/npm/tsparticles-engine@latest/tsparticles.bundle.min.js')
 
-        if (canceled || !vantaRef.current || !window.VANTA || !window.VANTA.NET) return
+        if (canceled || !window.tsParticles || typeof window.tsParticles.load !== 'function') return
 
-        vantaEffect = window.VANTA.NET({
-          el: vantaRef.current,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.0,
-          minWidth: 200.0,
-          scale: 1.0,
-          scaleMobile: 1.0,
-          backgroundColor: 0xa3243,
-          color: 0xffffff,
-          points: 15.0,
-          maxDistance: 16.0,
-          spacing: 16.0,
+        const containerId = particlesContainerId.current
+        const element = document.getElementById(containerId)
+        if (!element) return
+
+        particlesInstance = await window.tsParticles.load(containerId, {
+          fullScreen: { enable: false },
+          background: { color: '#0b0e14' },
+          particles: {
+            number: { value: 80 },
+            move: { enable: true, speed: 1 },
+            size: { value: 2 },
+            links: { enable: true, distance: 120, opacity: 0.4 },
+          },
+          interactivity: {
+            events: { onHover: { enable: true, mode: 'repulse' } },
+            modes: { repulse: { distance: 120 } },
+          },
         })
       } catch (err) {
-        console.error('Erro ao inicializar animação Vanta:', err)
+        console.error('Erro ao inicializar partículas:', err)
       }
     }
 
-    initVanta()
+    initParticles()
 
     return () => {
       canceled = true
-      if (vantaEffect) {
-        vantaEffect.destroy()
+      if (particlesInstance && typeof particlesInstance.destroy === 'function') {
+        particlesInstance.destroy()
       }
     }
   }, [])
@@ -382,7 +384,7 @@ export default function Login() {
     'inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 px-4 py-3 font-semibold text-slate-900 shadow-lg shadow-cyan-500/20 transition hover:scale-[1.01] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-60'
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
-      <div ref={vantaRef} className="absolute inset-0" aria-hidden="true" />
+      <div id={particlesContainerId.current} className="absolute inset-0" aria-hidden="true" />
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-24 -top-32 h-96 w-96 rounded-full bg-cyan-500/30 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-[28rem] w-[28rem] rounded-full bg-indigo-500/20 blur-3xl" />
