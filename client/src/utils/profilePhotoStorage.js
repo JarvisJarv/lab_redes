@@ -28,6 +28,9 @@ export function loadProfilePhoto(context) {
   if (!storage) return ''
   const key = getProfilePhotoStorageKey(context)
   try {
+    if (context?.isAdmin) {
+      return ''
+    }
     return storage.getItem(key) || ''
   } catch (err) {
     console.warn('Erro ao carregar foto de perfil do localStorage.', err)
@@ -36,6 +39,9 @@ export function loadProfilePhoto(context) {
 }
 
 export function saveProfilePhoto(context, dataUrl) {
+  if (context?.isAdmin) {
+    return
+  }
   const storage = getStorage()
   if (!storage) return
   const key = getProfilePhotoStorageKey(context)
@@ -51,6 +57,9 @@ export function saveProfilePhoto(context, dataUrl) {
 }
 
 export function removeProfilePhoto(context) {
+  if (context?.isAdmin) {
+    return
+  }
   const storage = getStorage()
   if (!storage) return
   const key = getProfilePhotoStorageKey(context)
