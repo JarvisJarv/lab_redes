@@ -5,7 +5,8 @@
     "matricula": "t1",
     "curso": "Sistemas de Informação",
     "did": "did:simulado:ee592f02-090e-43b3-b3ee-12f44ce606c7",
-    "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQtA1ffzdO0e3Lx0ehwlZ8/SajtjK2ABHz8mczS4SIL5VJUf6cwXDW+DlbeHTsu/UtdPimrx7qOJGUrTAfTeh6w=="
+    "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQtA1ffzdO0e3Lx0ehwlZ8/SajtjK2ABHz8mczS4SIL5VJUf6cwXDW+DlbeHTsu/UtdPimrx7qOJGUrTAfTeh6w==",
+    "createdAt": "2024-01-10T12:00:00.000Z"
   },
   {
     "id": "eybmolp3",
@@ -13,6 +14,7 @@
     "matricula": "t2",
     "curso": "Sistemas de Informação",
     "did": "did:simulado:20c8bbbe-5140-4dc0-b321-45e357ea3f0c",
-    "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE2DuHYny6t86Em6E8Zo4/2jhgJ7ysMTDD00Amrq7UkQMsLWFrF5LMqTRjX0gQv1ZtSFi9bRueuSGfY42+aKKzGA=="
+    "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE2DuHYny6t86Em6E8Zo4/2jhgJ7ysMTDD00Amrq7UkQMsLWFrF5LMqTRjX0gQv1ZtSFi9bRueuSGfY42+aKKzGA==",
+    "createdAt": "2024-01-15T15:30:00.000Z"
   }
 ]

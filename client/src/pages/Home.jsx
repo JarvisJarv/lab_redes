@@ -15,32 +15,69 @@ export default function Home() {
   const [userName, setUserName] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [codigo, setCodigo] = useState('')
+  const [registrando, setRegistrando] = useState(false)
   const [presencasCount, setPresencasCount] = useState(0)
   const [ultimaPresenca, setUltimaPresenca] = useState(null)
   const vantaRef = useVantaNet()
+
+  function atualizarResumoComLista(lista, didFiltro) {
+    if (!Array.isArray(lista) || lista.length === 0) {
+      setPresencasCount(0)
+      setUltimaPresenca(null)
+      return
+    }
+
+    const filtro = didFiltro ? lista.filter((item) => item.did === didFiltro) : lista
+    if (filtro.length === 0) {
+      setPresencasCount(0)
+      setUltimaPresenca(null)
+      return
+    }
+
+    const ordenadas = [...filtro].sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora))
+    setPresencasCount(ordenadas.length)
+    setUltimaPresenca(ordenadas[0])
+  }
+
+  async function carregarPresencas(didValor) {
+    const alvoDid = typeof didValor === 'string' ? didValor : did
+
+    if (alvoDid) {
+      try {
+        const res = await fetch(`/api/presencas?did=${encodeURIComponent(alvoDid)}`)
+        if (res.ok) {
+          const dados = await res.json()
+          if (Array.isArray(dados)) {
+            atualizarResumoComLista(dados, alvoDid)
+            try {
+              localStorage.setItem('presencas', JSON.stringify(dados))
+            } catch (err) {
+              console.warn('Não foi possível armazenar presenças localmente', err)
+            }
+            return
+          }
+        }
+      } catch (err) {
+        console.warn('Erro ao sincronizar presenças com o servidor', err)
+      }
+    }
+
+    try {
+      const raw = localStorage.getItem('presencas')
+      const arr = raw ? JSON.parse(raw) : []
+      atualizarResumoComLista(arr, alvoDid || null)
+    } catch (err) {
+      console.error(err)
+      atualizarResumoComLista([], alvoDid || null)
+    }
+  }
 
   useEffect(() => {
     const d = localStorage.getItem('userDID') || ''
     const n = localStorage.getItem('userName') || ''
     setDid(d)
     setUserName(n)
-
-    try {
-      const raw = localStorage.getItem('presencas')
-      const arr = raw ? JSON.parse(raw) : []
-      if (Array.isArray(arr) && arr.length > 0) {
-        const ordered = [...arr].sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora))
-        setPresencasCount(arr.length)
-        setUltimaPresenca(ordered[0])
-      } else {
-        setPresencasCount(0)
-        setUltimaPresenca(null)
-      }
-    } catch (err) {
-      console.error(err)
-      setPresencasCount(0)
-      setUltimaPresenca(null)
-    }
+    carregarPresencas(d)
   }, [])
 
   function abrirModal() {
@@ -50,35 +87,83 @@ export default function Home() {
 
   function fecharModal() {
     setModalOpen(false)
+    setRegistrando(false)
   }
 
-  function confirmarPresenca() {
+  async function confirmarPresenca() {
     const codigoTrim = (codigo || '').toString().trim()
     if (!codigoTrim) {
       show('Por favor, informe o código do evento')
       return
     }
 
-    const obj = {
-      eventoID: codigoTrim,
-      nomeEvento: codigoTrim || 'Evento sem nome',
-      dataHora: new Date().toISOString(),
-      did: did,
-      hash: gerarUUID(),
+    if (!did) {
+      show('Identidade não encontrada. Faça login novamente.')
+      return
     }
 
+    setRegistrando(true)
+
     try {
-      const raw = localStorage.getItem('presencas')
-      const arr = raw ? JSON.parse(raw) : []
-      arr.push(obj)
-      localStorage.setItem('presencas', JSON.stringify(arr))
+      const payload = {
+        eventoID: codigoTrim,
+        nomeEvento: codigoTrim || 'Evento sem nome',
+        did,
+      }
+      const res = await fetch('/api/presenca', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const texto = await res.text()
+        throw new Error(texto || 'Erro ao registrar presença no servidor')
+      }
+
+      const registro = await res.json()
       fecharModal()
+      setCodigo('')
       show('Presença registrada com sucesso!')
-      setPresencasCount(arr.length)
-      setUltimaPresenca(obj)
+      await carregarPresencas(did)
+      try {
+        const raw = localStorage.getItem('presencas')
+        const arr = raw ? JSON.parse(raw) : []
+        const atualizadas = Array.isArray(arr) ? [...arr.filter((p) => p.id !== registro.id), registro] : [registro]
+        localStorage.setItem('presencas', JSON.stringify(atualizadas))
+      } catch (err) {
+        console.warn('Não foi possível atualizar as presenças locais', err)
+      }
     } catch (err) {
-      console.error(err)
-      show('Erro ao salvar presença')
+      console.error('Erro ao registrar presença', err)
+      let fallbackSucesso = false
+      try {
+        const raw = localStorage.getItem('presencas')
+        const arr = raw ? JSON.parse(raw) : []
+        const fallback = {
+          id: gerarUUID(),
+          eventoID: codigoTrim,
+          nomeEvento: codigoTrim || 'Evento sem nome',
+          dataHora: new Date().toISOString(),
+          did,
+          hash: gerarUUID(),
+        }
+        const atualizadas = Array.isArray(arr) ? [...arr, fallback] : [fallback]
+        localStorage.setItem('presencas', JSON.stringify(atualizadas))
+        atualizarResumoComLista(atualizadas, did)
+        fecharModal()
+        setCodigo('')
+        show('Presença salva localmente. Sincronize quando possível.')
+        fallbackSucesso = true
+      } catch (storageErr) {
+        console.error('Erro ao salvar presença localmente', storageErr)
+      }
+
+      if (!fallbackSucesso) {
+        show(err.message || 'Erro ao registrar presença')
+      }
+    } finally {
+      setRegistrando(false)
     }
   }
 
@@ -239,8 +324,8 @@ export default function Home() {
               <button className="btn-ghost" onClick={fecharModal} type="button">
                 Cancelar
               </button>
-              <button className="btn-primary" onClick={confirmarPresenca} type="button">
-                Confirmar presença
+              <button className="btn-primary" onClick={confirmarPresenca} type="button" disabled={registrando}>
+                {registrando ? 'Registrando...' : 'Confirmar presença'}
               </button>
             </div>
           </div>
