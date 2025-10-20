@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import useVantaNet from '../hooks/useVantaNet'
 
 function formatDateTime(isoString) {
   if (!isoString) return '—'
@@ -30,6 +31,7 @@ export default function AdminDashboard() {
   const [presencasError, setPresencasError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [eventSearchTerm, setEventSearchTerm] = useState('')
+  const vantaRef = useVantaNet()
 
   useEffect(() => {
     async function carregarUsuarios() {
@@ -189,7 +191,7 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <div className="page-with-vanta">
+      <div className="page-with-vanta" ref={vantaRef}>
         <div className="page-with-vanta__content px-4 sm:px-6 lg:px-8">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
             <section className="glass-panel p-6 sm:p-10 space-y-8">

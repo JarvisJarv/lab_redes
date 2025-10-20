@@ -506,15 +506,15 @@ export default function Login() {
               <ul className="mt-3 space-y-2 text-sm text-slate-200">
                 <li className="flex items-start gap-2">
                   <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                  Utilize sempre dispositivos confiáveis e mantenha-os protegidos.
+                  Verifique se o nome e a matrícula inseridos correspondem aos dados cadastrados antes de prosseguir.
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                  Nunca compartilhe sua chave privada com terceiros.
+                  Guarde o dispositivo em que sua identidade foi criada, pois a chave privada fica salva localmente.
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                  Use o mesmo dispositivo para evitar bloqueios durante o login.
+                  Em caso de perda do acesso, gere uma nova identidade e informe a organização responsável.
                 </li>
               </ul>
             </div>
