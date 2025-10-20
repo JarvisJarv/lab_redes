@@ -21,6 +21,25 @@ function formatDateOnly(isoString) {
   }
 }
 
+function getUserInitials(user) {
+  const source = user?.userName || user?.matricula || ''
+  if (!source) return 'ID'
+  const parts = source
+    .toString()
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  if (parts.length === 0) return 'ID'
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+
+  const first = parts[0]?.[0] || ''
+  const last = parts[parts.length - 1]?.[0] || ''
+  return `${first}${last}`.toUpperCase()
+}
+
 export default function AdminDashboard() {
   const [users, setUsers] = useState([])
   const [loadingUsers, setLoadingUsers] = useState(true)
@@ -266,6 +285,7 @@ export default function AdminDashboard() {
                       <table>
                         <thead>
                           <tr>
+                            <th className="admin-users-table__photo">Foto</th>
                             <th>Nome</th>
                             <th>Matrícula</th>
                             <th>Curso</th>
@@ -277,6 +297,18 @@ export default function AdminDashboard() {
                         <tbody>
                           {filteredUsers.map((user) => (
                             <tr key={user.id || user.did}>
+                              <td className="admin-users-table__photo-cell">
+                                <div className="admin-user-avatar admin-user-avatar--table">
+                                  {user.profilePhoto ? (
+                                    <img
+                                      src={user.profilePhoto}
+                                      alt={`Foto de ${user.userName || user.matricula || 'usuário'}`}
+                                    />
+                                  ) : (
+                                    <span>{getUserInitials(user)}</span>
+                                  )}
+                                </div>
+                              </td>
                               <td className="font-medium">{user.userName || '—'}</td>
                               <td>{user.matricula || '—'}</td>
                               <td>{user.curso || '—'}</td>
@@ -298,9 +330,23 @@ export default function AdminDashboard() {
                     <div className="admin-user-cards">
                       {filteredUsers.map((user) => (
                         <article className="admin-user-card" key={(user.id || user.did) ?? user.matricula}>
-                          <header>
-                            <h3>{user.userName || 'Nome não informado'}</h3>
-                            <p>{user.curso || 'Curso não informado'}</p>
+                          <header className="admin-user-card__header">
+                            <div className="admin-user-card__photo">
+                              <div className="admin-user-avatar admin-user-avatar--card">
+                                {user.profilePhoto ? (
+                                  <img
+                                    src={user.profilePhoto}
+                                    alt={`Foto de ${user.userName || user.matricula || 'usuário'}`}
+                                  />
+                                ) : (
+                                  <span>{getUserInitials(user)}</span>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <h3>{user.userName || 'Nome não informado'}</h3>
+                              <p>{user.curso || 'Curso não informado'}</p>
+                            </div>
                           </header>
                           <dl>
                             <div>

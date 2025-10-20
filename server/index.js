@@ -5,7 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Olá do backend!' });
@@ -29,11 +29,17 @@ try {
     users = JSON.parse(rawu)
     let usersUpdated = false
     users = users.map((u) => {
-      if (u && !u.createdAt) {
+      if (!u) return u
+      let updatedUser = { ...u }
+      if (!u.createdAt) {
         usersUpdated = true
-        return { ...u, createdAt: new Date().toISOString() }
+        updatedUser = { ...updatedUser, createdAt: new Date().toISOString() }
       }
-      return u
+      if (typeof u.profilePhoto !== 'string') {
+        usersUpdated = true
+        updatedUser = { ...updatedUser, profilePhoto: '' }
+      }
+      return updatedUser
     })
     if (usersUpdated) {
       salvarUsers()
@@ -79,6 +85,7 @@ app.post('/api/register', (req, res) => {
     did,
     publicKey,
     createdAt: new Date().toISOString(),
+    profilePhoto: typeof req.body.profilePhoto === 'string' ? req.body.profilePhoto : '',
   }
   users.push(user)
   salvarUsers()
@@ -96,7 +103,24 @@ app.get('/api/users', (req, res) => {
     const found = users.filter((u) => u.matricula === matricula)
     return res.json(found)
   }
-  return res.json(users.map((u) => ({ ...u, createdAt: u.createdAt || null })))
+  return res.json(users.map((u) => ({ ...u, createdAt: u.createdAt || null, profilePhoto: u.profilePhoto || '' })))
+})
+
+app.put('/api/users/photo', (req, res) => {
+  const { did, profilePhoto } = req.body || {}
+  if (!did) {
+    return res.status(400).json({ error: 'Campo "did" é obrigatório' })
+  }
+
+  const index = users.findIndex((u) => u.did === did)
+  if (index === -1) {
+    return res.status(404).json({ error: 'Usuário não encontrado' })
+  }
+
+  const sanitizedPhoto = typeof profilePhoto === 'string' ? profilePhoto : ''
+  users[index] = { ...users[index], profilePhoto: sanitizedPhoto }
+  salvarUsers()
+  return res.json(users[index])
 })
 
 // POST /api/login
