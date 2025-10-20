@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import labLogo from '../assets/lab-logo.png'
 import { removeProfilePhoto, saveProfilePhoto } from '../utils/profilePhotoStorage'
@@ -45,7 +45,6 @@ function gerarDID() {
 // Aqui usamos localStorage para simplicidade do protótipo.
 
 export default function Login() {
-  const vantaRef = useRef(null)
   const [registerNome, setRegisterNome] = useState('')
   const [registerMatricula, setRegisterMatricula] = useState('')
   const [registerCurso, setRegisterCurso] = useState('Sistemas de Informação')
@@ -57,14 +56,14 @@ export default function Login() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    let vantaEffect
-    let canceled = false
+    let destroyed = false
+    let particlesInstance
 
     const loadScript = (src) =>
       new Promise((resolve, reject) => {
         const existing = document.querySelector(`script[src="${src}"]`)
         if (existing) {
-          if (existing.getAttribute('data-loaded') === 'true') {
+          if (existing.getAttribute('data-loaded') === 'true' || window.loadTrianglesPreset) {
             resolve()
             return
           }
@@ -88,39 +87,46 @@ export default function Login() {
         document.body.appendChild(script)
       })
 
-    async function initVanta() {
+    async function initParticles() {
       try {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js')
+        await loadScript(
+          'https://cdn.jsdelivr.net/npm/@tsparticles/preset-triangles@3/tsparticles.preset.triangles.bundle.min.js'
+        )
 
-        if (canceled || !vantaRef.current || !window.VANTA || !window.VANTA.NET) return
+        if (destroyed || !window.tsParticles || !window.loadTrianglesPreset) return
 
-        vantaEffect = window.VANTA.NET({
-          el: vantaRef.current,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.0,
-          minWidth: 200.0,
-          scale: 1.0,
-          scaleMobile: 1.0,
-          backgroundColor: 0xa3243,
-          color: 0xffffff,
-          points: 15.0,
-          maxDistance: 16.0,
-          spacing: 16.0,
+        await window.loadTrianglesPreset(window.tsParticles)
+
+        if (destroyed) return
+
+        particlesInstance = await window.tsParticles.load({
+          id: 'tsparticles',
+          options: {
+            preset: 'triangles',
+            background: {
+              color: '#020617',
+            },
+            particles: {
+              opacity: {
+                value: 0.4,
+              },
+              color: {
+                value: ['#22d3ee', '#38bdf8', '#6366f1'],
+              },
+            },
+          },
         })
       } catch (err) {
-        console.error('Erro ao inicializar animação Vanta:', err)
+        console.error('Erro ao inicializar animação de partículas:', err)
       }
     }
 
-    initVanta()
+    initParticles()
 
     return () => {
-      canceled = true
-      if (vantaEffect) {
-        vantaEffect.destroy()
+      destroyed = true
+      if (particlesInstance) {
+        particlesInstance.destroy()
       }
     }
   }, [])
@@ -404,7 +410,7 @@ export default function Login() {
     'inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 px-4 py-3 font-semibold text-slate-900 shadow-lg shadow-cyan-500/20 transition hover:scale-[1.01] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-60'
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
-      <div ref={vantaRef} className="absolute inset-0" aria-hidden="true" />
+      <div id="tsparticles" className="absolute inset-0" aria-hidden="true" />
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-24 -top-32 h-96 w-96 rounded-full bg-cyan-500/30 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-[28rem] w-[28rem] rounded-full bg-indigo-500/20 blur-3xl" />
