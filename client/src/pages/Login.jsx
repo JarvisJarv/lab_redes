@@ -102,6 +102,7 @@ export default function Login() {
           minWidth: 200.0,
           scale: 1.0,
           scaleMobile: 1.0,
+          backgroundColor: 0xa3243,
           color: 0xffffff,
           points: 15.0,
           maxDistance: 16.0,
