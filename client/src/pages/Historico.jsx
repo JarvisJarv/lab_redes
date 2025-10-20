@@ -84,7 +84,7 @@ export default function Historico() {
                     Voltar para a página inicial
                   </button>
                   <button
-                    className="btn-primary inline-flex items-center justify-center gap-2"
+                    className="report-button"
                     onClick={gerarRelatorio}
                     type="button"
                     disabled={presencas.length === 0}
@@ -93,22 +93,27 @@ export default function Historico() {
                         ? 'Adicione presenças antes de gerar um relatório'
                         : 'Baixar um arquivo com o histórico completo'
                     }
+                    aria-disabled={presencas.length === 0}
                   >
-                    <svg
-                      aria-hidden="true"
-                      className="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 5v10" />
-                      <path d="M6 11l6 6 6-6" />
-                      <rect width="18" height="4" x="3" y="19" rx="1" />
-                    </svg>
-                    <span>Gerar relatório</span>
+                    <span className="report-button__icon" aria-hidden="true">
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 4v10" />
+                        <path d="M6.5 10.5 12 16l5.5-5.5" />
+                        <rect width="18" height="4" x="3" y="19" rx="1" />
+                      </svg>
+                    </span>
+                    <span className="report-button__content">
+                      <span className="report-button__title">Gerar relatório</span>
+                      <span className="report-button__subtitle">Histórico completo em PDF</span>
+                    </span>
                   </button>
                 </div>
               </header>
