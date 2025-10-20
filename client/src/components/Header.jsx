@@ -8,6 +8,7 @@ export default function Header() {
   function handleLogout() {
     localStorage.removeItem('userDID')
     localStorage.removeItem('userName')
+    localStorage.removeItem('isAdmin')
     navigate('/')
   }
 
