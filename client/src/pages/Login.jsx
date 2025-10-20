@@ -389,7 +389,7 @@ export default function Login() {
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-10">
-        <div className="mb-10 text-center lg:text-left">
+        <div className="mb-12 text-center lg:text-left">
           <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
             Self-sovereign identity
           </span>
@@ -403,8 +403,8 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_minmax(0,1fr)]">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl sm:p-8">
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_minmax(0,1fr)] lg:items-start xl:gap-12">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl sm:p-8 lg:h-full">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-white">Criar Identidade</h2>
@@ -457,7 +457,7 @@ export default function Login() {
             </form>
           </div>
 
-          <div className="flex flex-col gap-6">
+          <div className="flex w-full flex-col gap-6 lg:max-w-sm lg:justify-self-center">
             <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl sm:p-8">
               <h2 className="text-xl font-semibold text-white">Login rápido</h2>
               <p className="mt-1 text-sm text-slate-200">
