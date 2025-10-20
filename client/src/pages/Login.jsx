@@ -442,19 +442,21 @@ export default function Login() {
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-100 backdrop-blur-xl sm:p-7">
-                <h3 className="text-base font-semibold text-white">Dicas de segurança</h3>
+                <h3 className="text-base font-semibold text-white">Avisos importantes</h3>
                 <ul className="mt-3 space-y-2 text-sm text-slate-200">
                   <li className="flex items-start gap-2">
                     <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                    Verifique se o nome e a matrícula inseridos correspondem aos dados cadastrados antes de prosseguir.
+                    Esta identidade usa a chave privada armazenada neste dispositivo. Se precisar importá-la em outro
+                    equipamento, consulte um administrador antes de prosseguir.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                    Guarde o dispositivo em que sua identidade foi criada, pois a chave privada fica salva localmente.
+                    Não gere uma nova identidade se ainda precisa da atual.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                    Em caso de perda do acesso, gere uma nova identidade e informe a organização responsável.
+                    Em caso de perda, suspeita de comprometimento ou qualquer erro de acesso, contate imediatamente o
+                    administrador para que o problema seja analisado e o acesso, regularizado.
                   </li>
                 </ul>
               </div>
