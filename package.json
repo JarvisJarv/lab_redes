@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "npm run dev",
-    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "setup:requirements": "node scripts/install-from-requirements.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"

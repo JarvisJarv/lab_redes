@@ -1,0 +1,17 @@
+# Lista consolidada de bibliotecas do projeto Trabalho Blockchain
+# Formato: <escopo>:<nome_do_pacote>@<versao>
+# Escopos possíveis: root, server, client
+root:concurrently@^8.2.0
+
+server:cors@^2.8.5
+server:express@^4.18.2
+server:nodemon@^3.0.1
+
+client:react@^18.2.0
+client:react-dom@^18.2.0
+client:react-router-dom@^6.14.1
+client:@vitejs/plugin-react@^4.0.0
+client:autoprefixer@^10.4.14
+client:postcss@^8.4.23
+client:tailwindcss@^3.4.8
+client:vite@^5.0.0
