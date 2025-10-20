@@ -43,6 +43,11 @@ function getUserInitials(user) {
   return `${first}${last}`.toUpperCase()
 }
 
+function getReportKey(user) {
+  if (!user) return ''
+  return user.did || user.id || user.matricula || user.userName || ''
+}
+
 export default function AdminDashboard() {
   const [users, setUsers] = useState([])
   const [loadingUsers, setLoadingUsers] = useState(true)
@@ -126,26 +131,70 @@ export default function AdminDashboard() {
   }
 
   async function gerarRelatorioUsuario(user) {
-    if (!user?.did) {
-      show('Usuário não possui DID para gerar relatório')
+    const reportKey = getReportKey(user)
+    if (!reportKey) {
+      show('Usuário não possui identificadores suficientes para gerar relatório')
       return
     }
 
-    setReportLoadingId(user.did)
+    const endpoints = []
+    if (user?.did) {
+      endpoints.push({
+        url: `/api/presencas?did=${encodeURIComponent(user.did)}`,
+        label: 'did',
+      })
+    }
+    if (user?.id) {
+      endpoints.push({
+        url: `/api/presencas?userId=${encodeURIComponent(user.id)}`,
+        label: 'id',
+      })
+    }
+
+    if (endpoints.length === 0) {
+      show('Usuário não possui identificadores suficientes para gerar relatório')
+      return
+    }
+
+    setReportLoadingId(reportKey)
     try {
-      const res = await fetch(`/api/presencas?did=${encodeURIComponent(user.did)}`)
-      if (!res.ok) {
-        const txt = await res.text()
-        throw new Error(txt || 'Erro ao buscar presenças do usuário')
-      }
-      const data = await res.json()
-      if (!Array.isArray(data)) {
-        throw new Error('Dados de presença inválidos')
+      let dadosPresencas = null
+      let ultimoErro = null
+
+      // Tenta consultar cada endpoint disponível até encontrar um retorno válido
+      for (const endpoint of endpoints) {
+        try {
+          const res = await fetch(endpoint.url)
+          if (!res.ok) {
+            const txt = await res.text()
+            ultimoErro = new Error(
+              txt || `Erro ao buscar presenças do usuário (${endpoint.label})`,
+            )
+            continue
+          }
+
+          const data = await res.json()
+          if (Array.isArray(data)) {
+            dadosPresencas = data
+            break
+          }
+
+          ultimoErro = new Error('Dados de presença inválidos')
+        } catch (err) {
+          ultimoErro = err
+        }
       }
 
-      downloadHistoryReport(data, {
+      if (!dadosPresencas) {
+        if (ultimoErro) {
+          throw ultimoErro
+        }
+        throw new Error('Não foi possível localizar registros de presença para este usuário')
+      }
+
+      downloadHistoryReport(dadosPresencas, {
         ownerName: user.userName || undefined,
-        ownerIdentifier: user.matricula || user.did || undefined,
+        ownerIdentifier: user.matricula || user.did || user.id || undefined,
         ownerDid: user.did || undefined,
         fileNamePrefix: 'relatorio-presencas-aluno',
       })
@@ -169,7 +218,8 @@ export default function AdminDashboard() {
     try {
       downloadHistoryReport(presencas, {
         ownerName: selectedUser.userName || undefined,
-        ownerIdentifier: selectedUser.matricula || selectedUser.did || undefined,
+        ownerIdentifier:
+          selectedUser.matricula || selectedUser.did || selectedUser.id || undefined,
         ownerDid: selectedUser.did || undefined,
         fileNamePrefix: 'relatorio-presencas-aluno',
       })
@@ -428,9 +478,9 @@ export default function AdminDashboard() {
                                     className="btn-primary"
                                     type="button"
                                     onClick={() => gerarRelatorioUsuario(user)}
-                                    disabled={!user.did || reportLoadingId === user.did}
+                                    disabled={reportLoadingId === getReportKey(user)}
                                   >
-                                    {user.did && reportLoadingId === user.did ? 'Gerando...' : 'Gerar relatório'}
+                                    {reportLoadingId === getReportKey(user) ? 'Gerando...' : 'Gerar relatório'}
                                   </button>
                                 </div>
                               </td>
@@ -506,9 +556,9 @@ export default function AdminDashboard() {
                                 className="btn-primary"
                                 type="button"
                                 onClick={() => gerarRelatorioUsuario(user)}
-                                disabled={!user.did || reportLoadingId === user.did}
+                                disabled={reportLoadingId === getReportKey(user)}
                               >
-                                {user.did && reportLoadingId === user.did ? 'Gerando...' : 'Gerar relatório'}
+                                {reportLoadingId === getReportKey(user) ? 'Gerando...' : 'Gerar relatório'}
                               </button>
                             </div>
                           </footer>
