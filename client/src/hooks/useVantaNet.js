@@ -5,6 +5,26 @@ const VANTA_NET_SRC = 'https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.
 
 const scriptPromises = {}
 
+function shouldDisableVanta() {
+  if (typeof window === 'undefined') {
+    return true
+  }
+
+  const prefersReducedMotion =
+    typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  const lowEndHardware = (() => {
+    if (typeof navigator === 'undefined') return false
+    const lowMemory = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2
+    const lowCpu = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 2
+    return lowMemory || lowCpu
+  })()
+
+  const smallViewport = window.innerWidth < 768
+
+  return prefersReducedMotion || lowEndHardware || smallViewport
+}
+
 function loadScript(src) {
   if (typeof document === 'undefined') {
     return Promise.reject(new Error('Document is not available'))
@@ -55,6 +75,17 @@ export default function useVantaNet() {
 
     const initialize = async () => {
       try {
+        if (!elementRef.current) {
+          return
+        }
+
+        if (shouldDisableVanta()) {
+          elementRef.current.setAttribute('data-vanta-disabled', 'true')
+          return
+        }
+
+        elementRef.current.removeAttribute('data-vanta-disabled')
+
         await loadScript(THREE_SRC)
         await loadScript(VANTA_NET_SRC)
 
