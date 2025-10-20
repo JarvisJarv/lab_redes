@@ -19,42 +19,60 @@ const USERS_FILE = path.join(__dirname, 'users.json')
 
 let presencas = [];
 let users = [];
-try {
-  if (fs.existsSync(DATA_FILE)) {
-    const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-    presencas = JSON.parse(raw);
+function lerJsonArrayDoArquivo(arquivo) {
+  if (!fs.existsSync(arquivo)) {
+    return [];
   }
-  if (fs.existsSync(USERS_FILE)) {
-    const rawu = fs.readFileSync(USERS_FILE, 'utf-8');
-    users = JSON.parse(rawu);
-    let usersUpdated = false;
-    users = users.map((u) => {
-      if (!u) return u;
-      let updatedUser = { ...u };
-      if (!u.createdAt) {
-        usersUpdated = true;
-        updatedUser = { ...updatedUser, createdAt: new Date().toISOString() };
-      }
-      if (typeof u.profilePhoto !== 'string') {
-        usersUpdated = true;
-        updatedUser = { ...updatedUser, profilePhoto: '' };
-      }
-      if (typeof u.publicKey !== 'string') {
-        usersUpdated = true;
-        updatedUser = { ...updatedUser, publicKey: '' };
-      } else if (u.publicKey.length > 512) {
-        usersUpdated = true;
-        updatedUser = { ...updatedUser, publicKey: u.publicKey.slice(0, 512) };
-      }
-      return updatedUser;
-    });
-    if (usersUpdated) {
-      salvarUsers();
+
+  try {
+    const conteudo = fs.readFileSync(arquivo, 'utf-8');
+    if (!conteudo.trim()) {
+      return [];
     }
+    const parsed = JSON.parse(conteudo);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.error(`Erro ao ler arquivo ${arquivo}:`, err);
+    return [];
   }
-} catch (err) {
-  console.error('Erro ao carregar presencas do arquivo:', err);
+}
+
+presencas = lerJsonArrayDoArquivo(DATA_FILE);
+users = lerJsonArrayDoArquivo(USERS_FILE);
+
+if (!Array.isArray(presencas)) {
   presencas = [];
+}
+
+if (!Array.isArray(users)) {
+  users = [];
+}
+
+let usersUpdated = false;
+users = users
+  .filter(Boolean)
+  .map((u) => {
+    let updatedUser = { ...u };
+    if (!u.createdAt) {
+      usersUpdated = true;
+      updatedUser = { ...updatedUser, createdAt: new Date().toISOString() };
+    }
+    if (typeof u.profilePhoto !== 'string') {
+      usersUpdated = true;
+      updatedUser = { ...updatedUser, profilePhoto: '' };
+    }
+    if (typeof u.publicKey !== 'string') {
+      usersUpdated = true;
+      updatedUser = { ...updatedUser, publicKey: '' };
+    } else if (u.publicKey.length > 512) {
+      usersUpdated = true;
+      updatedUser = { ...updatedUser, publicKey: u.publicKey.slice(0, 512) };
+    }
+    return updatedUser;
+  });
+
+if (usersUpdated) {
+  salvarUsers();
 }
 
 // Gera um ID aleatório simples
