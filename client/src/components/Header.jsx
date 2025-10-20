@@ -184,70 +184,83 @@ export default function Header() {
       <div className="app-header__inner">
         <div className="app-header__brand">
           <div className="app-header__profile">
-            <button
-              type="button"
-              className="app-header__avatar"
-              onClick={() => {
-                if (hasPhoto) {
-                  openPhotoModal()
-                } else {
-                  triggerPhotoUpload()
+            <div className="app-header__profile-row">
+              <button
+                type="button"
+                className="app-header__avatar"
+                onClick={() => {
+                  if (hasPhoto) {
+                    openPhotoModal()
+                  } else {
+                    triggerPhotoUpload()
+                  }
+                }}
+                title={
+                  isAdmin
+                    ? 'Visualizar logo do administrador'
+                    : hasPhoto
+                    ? 'Ampliar foto de perfil'
+                    : 'Adicionar foto de perfil'
                 }
-              }}
-              title={
-                isAdmin
-                  ? 'Visualizar logo do administrador'
-                  : hasPhoto
-                  ? 'Ampliar foto de perfil'
-                  : 'Adicionar foto de perfil'
-              }
-            >
-              {hasPhoto ? (
-                <img
-                  src={displayedPhoto}
-                  alt={isAdmin ? 'Logo padrão do administrador' : `Foto de perfil de ${nome || 'usuário'}`}
-                />
-              ) : (
-                <span aria-hidden="true">{profileInitials}</span>
-              )}
-              <span className="app-header__avatar-indicator" aria-hidden="true">
-                {hasPhoto ? 'Ampliar' : canEditPhoto ? 'Adicionar' : ''}
-              </span>
-            </button>
-            {canEditPhoto ? (
-              <>
-                <input
-                  ref={fileInputRef}
-                  id="profile-photo-input"
-                  className="app-header__profile-input"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleProfilePhotoChange}
-                />
-                {profilePhoto ? (
-                  <div className="app-header__avatar-actions">
+              >
+                {hasPhoto ? (
+                  <img
+                    src={displayedPhoto}
+                    alt={
+                      isAdmin
+                        ? 'Logo padrão do administrador'
+                        : `Foto de perfil de ${nome || 'usuário'}`
+                    }
+                  />
+                ) : (
+                  <span aria-hidden="true">{profileInitials}</span>
+                )}
+                <span className="app-header__avatar-indicator" aria-hidden="true">
+                  {hasPhoto ? 'Ampliar' : canEditPhoto ? 'Adicionar' : ''}
+                </span>
+              </button>
+              {canEditPhoto ? (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    id="profile-photo-input"
+                    className="app-header__profile-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePhotoChange}
+                  />
+                  {profilePhoto ? (
+                    <div className="app-header__avatar-actions">
+                      <button
+                        type="button"
+                        className="app-header__avatar-button"
+                        onClick={triggerPhotoUpload}
+                      >
+                        Trocar foto
+                      </button>
+                      <button
+                        type="button"
+                        className="app-header__avatar-button"
+                        onClick={handleRemoveProfilePhoto}
+                      >
+                        Remover foto
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       type="button"
-                      className="app-header__avatar-button"
+                      className="app-header__avatar-button app-header__avatar-button--add"
                       onClick={triggerPhotoUpload}
                     >
-                      Trocar foto
+                      Adicionar foto
                     </button>
-                    <button
-                      type="button"
-                      className="app-header__avatar-button"
-                      onClick={handleRemoveProfilePhoto}
-                    >
-                      Remover foto
-                    </button>
-                  </div>
-                ) : (
-                  <span className="app-header__avatar-hint">Adicionar foto</span>
-                )}
-              </>
-            ) : (
+                  )}
+                </>
+              ) : null}
+            </div>
+            {!canEditPhoto ? (
               <span className="app-header__avatar-hint">Logo padrão</span>
-            )}
+            ) : null}
           </div>
           <div>
             <div className="chip">{chipLabel}</div>
