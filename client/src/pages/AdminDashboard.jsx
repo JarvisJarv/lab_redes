@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import useVantaNet from '../hooks/useVantaNet'
 
 function formatDateTime(isoString) {
   if (!isoString) return '—'
@@ -22,7 +21,6 @@ function formatDateOnly(isoString) {
 }
 
 export default function AdminDashboard() {
-  const vantaRef = useVantaNet()
   const [users, setUsers] = useState([])
   const [loadingUsers, setLoadingUsers] = useState(true)
   const [usersError, setUsersError] = useState('')
@@ -105,7 +103,7 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <div className="page-with-vanta" ref={vantaRef}>
+      <div className="page-with-vanta">
         <div className="page-with-vanta__content px-4 sm:px-6 lg:px-8">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
             <section className="glass-panel p-6 sm:p-10 space-y-6">
