@@ -1619,6 +1619,8 @@ tbody tr:last-child {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .history-modal__chip {
@@ -1754,12 +1756,16 @@ tbody tr:last-child {
   }
 
   .history-modal__header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
     padding-bottom: 1.25rem;
   }
 
   .history-modal__actions {
     width: 100%;
     justify-content: flex-start;
+    margin-left: 0;
   }
 
   .history-modal__actions .btn-primary {
@@ -1773,6 +1779,7 @@ tbody tr:last-child {
   .history-modal__close {
     width: 2.25rem;
     height: 2.25rem;
+    align-self: flex-end;
     font-size: 1.5rem;
   }
 }
