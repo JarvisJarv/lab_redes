@@ -403,149 +403,150 @@ export default function Login() {
         <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/10 via-transparent to-transparent" />
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-10">
-        <div className="mb-10 text-center lg:text-left">
-          <img
-            src={labLogo}
-            alt="Laboratório de Redes"
-            className="mx-auto mb-6 h-16 w-auto drop-shadow-xl lg:mx-0"
-          />
-          <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
-            Self-sovereign identity
-          </span>
-          <h1 className="mt-6 text-3xl font-semibold sm:text-4xl lg:text-5xl">
-            Entre com segurança e crie sua identidade digital acadêmica
-          </h1>
-          <p className="mt-4 max-w-2xl text-base text-slate-200 sm:text-lg">
-            Gere um par de chaves criptográficas, mantenha a privacidade dos seus dados e
-            tenha acesso rápido às funcionalidades do laboratório de redes. Tudo em uma
-            interface moderna, clara e responsiva.
-          </p>
-        </div>
-
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_minmax(0,1fr)]">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl sm:p-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-white">Criar Identidade</h2>
-                <p className="mt-1 text-sm text-slate-200">
-                  Use seu nome, matrícula e curso para gerar um DID exclusivo.
-                </p>
-              </div>
-              <div className="hidden rounded-full bg-gradient-to-br from-cyan-400/40 to-blue-500/40 p-3 text-cyan-100 sm:block">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
-                  <path d="M12 1.75a.75.75 0 0 1 .707.498l2.076 5.926 6.243.269a.75.75 0 0 1 .431 1.348l-4.88 3.763 1.7 6.091a.75.75 0 0 1-1.142.828L12 16.93l-5.135 3.545a.75.75 0 0 1-1.142-.828l1.7-6.091-4.88-3.763a.75.75 0 0 1 .431-1.348l6.244-.269 2.075-5.926A.75.75 0 0 1 12 1.75Z" />
-                </svg>
-              </div>
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center px-4 py-10 sm:px-6 lg:px-10">
+        <div className="w-full space-y-10">
+          <div className="grid gap-10 lg:grid-cols-[1.05fr_minmax(0,1fr)] lg:items-center">
+            <div className="text-center lg:text-left">
+              <img
+                src={labLogo}
+                alt="Laboratório de Redes"
+                className="mx-auto mb-4 h-16 w-auto drop-shadow-xl lg:mx-0"
+              />
+              <span className="inline-flex items-center justify-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
+                Self-sovereign identity
+              </span>
+              <h1 className="mt-4 text-3xl font-semibold sm:text-4xl">
+                Entre com segurança e crie sua identidade digital acadêmica
+              </h1>
+              <p className="mt-3 max-w-xl text-sm text-slate-200 sm:text-base">
+                Gere um par de chaves criptográficas, mantenha a privacidade dos seus dados e
+                tenha acesso rápido às funcionalidades do laboratório de redes.
+              </p>
             </div>
 
-            <form onSubmit={handleCreateIdentity} className="mt-8 space-y-5">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-100">Nome completo</label>
-                <input
-                  value={registerNome}
-                  onChange={(e) => setRegisterNome(e.target.value)}
-                  className={inputClassName}
-                  placeholder="Ex: Maria Silva"
-                />
-              </div>
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-100">Matrícula</label>
-                  <input
-                    value={registerMatricula}
-                    onChange={(e) => setRegisterMatricula(e.target.value)}
-                    className={inputClassName}
-                    placeholder="Ex: 2025001"
-                  />
+            <div className="flex flex-col gap-6 lg:gap-8">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl sm:p-8">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-semibold text-white">Criar Identidade</h2>
+                    <p className="mt-1 text-sm text-slate-200">
+                      Use seu nome, matrícula e curso para gerar um DID exclusivo.
+                    </p>
+                  </div>
+                  <div className="hidden rounded-full bg-gradient-to-br from-cyan-400/40 to-blue-500/40 p-3 text-cyan-100 sm:block">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+                      <path d="M12 1.75a.75.75 0 0 1 .707.498l2.076 5.926 6.243.269a.75.75 0 0 1 .431 1.348l-4.88 3.763 1.7 6.091a.75.75 0 0 1-1.142.828L12 16.93l-5.135 3.545a.75.75 0 0 1-1.142-.828l1.7-6.091-4.88-3.763a.75.75 0 0 1 .431-1.348l6.244-.269 2.075-5.926A.75.75 0 0 1 12 1.75Z" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-100">Curso</label>
-                  <input
-                    value={registerCurso}
-                    onChange={(e) => setRegisterCurso(e.target.value)}
-                    className={inputClassName}
-                  />
+
+                <form onSubmit={handleCreateIdentity} className="mt-6 space-y-5">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-100">Nome completo</label>
+                    <input
+                      value={registerNome}
+                      onChange={(e) => setRegisterNome(e.target.value)}
+                      className={inputClassName}
+                      placeholder="Ex: Maria Silva"
+                    />
+                  </div>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-100">Matrícula</label>
+                      <input
+                        value={registerMatricula}
+                        onChange={(e) => setRegisterMatricula(e.target.value)}
+                        className={inputClassName}
+                        placeholder="Ex: 2025001"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-100">Curso</label>
+                      <input
+                        value={registerCurso}
+                        onChange={(e) => setRegisterCurso(e.target.value)}
+                        className={inputClassName}
+                      />
+                    </div>
+                  </div>
+                  <p className={subtleTextClass}>
+                    Ao continuar, geraremos um par de chaves ECDSA (P-256) localmente e armazenaremos sua chave privada neste dispositivo.
+                  </p>
+                  <button type="submit" className={primaryButtonClass} disabled={loading}>
+                    {loading ? 'Criando identidade…' : 'Gerar identidade segura'}
+                  </button>
+                </form>
+              </div>
+
+              <div className="grid gap-6 lg:grid-cols-2">
+                <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl sm:p-8">
+                  <h2 className="text-xl font-semibold text-white">Login rápido</h2>
+                  <p className="mt-1 text-sm text-slate-200">Autentique-se com seu Nome e matrícula.</p>
+
+                  <form onSubmit={handleLogin} className="mt-6 space-y-5">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-100">
+                        Nome <span className="text-red-300">*</span>
+                      </label>
+                      <input
+                        value={loginNome}
+                        onChange={(e) => setLoginNome(e.target.value)}
+                        className={inputClassName}
+                        placeholder="Insira seu nome"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-100">
+                        Matrícula <span className="text-red-300">*</span>
+                      </label>
+                      <input
+                        value={loginMatricula}
+                        onChange={(e) => setLoginMatricula(e.target.value)}
+                        className={`${inputClassName} ${!loginMatricula.trim() ? 'ring-1 ring-red-400/80' : ''}`}
+                        placeholder="Informe sua matrícula"
+                      />
+                      {!loginMatricula.trim() && (
+                        <span className="text-xs text-red-200">A matrícula é obrigatória para realizar o login.</span>
+                      )}
+                    </div>
+                    <button
+                      type="submit"
+                      className={primaryButtonClass}
+                      disabled={!loginMatricula.trim() || !loginNome.trim()}
+                    >
+                      Entrar agora
+                    </button>
+                  </form>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-100 backdrop-blur-xl sm:p-7">
+                  <h3 className="text-base font-semibold text-white">Dicas de segurança</h3>
+                  <ul className="mt-3 space-y-2 text-sm text-slate-200">
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
+                      Verifique se o nome e a matrícula inseridos correspondem aos dados cadastrados antes de prosseguir.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
+                      Guarde o dispositivo em que sua identidade foi criada, pois a chave privada fica salva localmente.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
+                      Em caso de perda do acesso, gere uma nova identidade e informe a organização responsável.
+                    </li>
+                  </ul>
                 </div>
               </div>
-              <p className={subtleTextClass}>
-                Ao continuar, geraremos um par de chaves ECDSA (P-256) localmente e armazenaremos sua chave privada neste dispositivo.
-              </p>
-              <button type="submit" className={primaryButtonClass} disabled={loading}>
-                {loading ? 'Criando identidade…' : 'Gerar identidade segura'}
-              </button>
-            </form>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-6">
-            <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl sm:p-8">
-              <h2 className="text-xl font-semibold text-white">Login rápido</h2>
-              <p className="mt-1 text-sm text-slate-200">
-                Autentique-se com seu Nome e matrícula.
-              </p>
-
-              <form onSubmit={handleLogin} className="mt-6 space-y-5">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-100">
-                    Nome <span className="text-red-300">*</span>
-                  </label>
-                  <input
-                    value={loginNome}
-                    onChange={(e) => setLoginNome(e.target.value)}
-                    className={inputClassName}
-                    placeholder="Insira seu nome"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-100">
-                    Matrícula <span className="text-red-300">*</span>
-                  </label>
-                  <input
-                    value={loginMatricula}
-                    onChange={(e) => setLoginMatricula(e.target.value)}
-                    className={`${inputClassName} ${!loginMatricula.trim() ? 'ring-1 ring-red-400/80' : ''}`}
-                    placeholder="Informe sua matrícula"
-                  />
-                  {!loginMatricula.trim() && (
-                    <span className="text-xs text-red-200">A matrícula é obrigatória para realizar o login.</span>
-                  )}
-                </div>
-                <button
-                  type="submit"
-                  className={primaryButtonClass}
-                  disabled={!loginMatricula.trim() || !loginNome.trim()}
-                >
-                  Entrar agora
-                </button>
-              </form>
-
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-100 backdrop-blur-xl sm:p-7">
-              <h3 className="text-base font-semibold text-white">Dicas de segurança</h3>
-              <ul className="mt-3 space-y-2 text-sm text-slate-200">
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                  Verifique se o nome e a matrícula inseridos correspondem aos dados cadastrados antes de prosseguir.
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                  Guarde o dispositivo em que sua identidade foi criada, pois a chave privada fica salva localmente.
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                  Em caso de perda do acesso, gere uma nova identidade e informe a organização responsável.
-                </li>
-              </ul>
-            </div>
+          <div className="space-y-2 text-sm">
+            {error && <div className="text-red-200">{error}</div>}
+            {message && <div className="text-emerald-200">{message}</div>}
           </div>
-        </div>
-
-        <div className="mt-8 space-y-2">
-          {error && <div className="text-sm text-red-200">{error}</div>}
-          {message && <div className="text-sm text-emerald-200">{message}</div>}
         </div>
       </div>
     </div>
   )
 }
+
