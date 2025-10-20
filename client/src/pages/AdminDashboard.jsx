@@ -307,52 +307,65 @@ export default function AdminDashboard() {
 
       {selectedUser && (
         <div className="modal-overlay" role="dialog" aria-modal="true">
-          <div className="modal-surface max-w-3xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="modal-title text-left">Histórico de {selectedUser.userName || selectedUser.matricula}</h2>
-                <p className="section-subtitle text-left">
-                  Matrícula: <span className="font-medium">{selectedUser.matricula || '—'}</span>
+          <div className="modal-surface history-modal max-w-3xl">
+            <header className="history-modal__header">
+              <div className="history-modal__title-group">
+                <span className="history-modal__eyebrow">Histórico do aluno</span>
+                <h2 className="modal-title history-modal__title">{selectedUser.userName || selectedUser.matricula}</h2>
+                <div className="history-modal__meta">
+                  <span className="history-modal__chip">
+                    Matrícula
+                    <strong>{selectedUser.matricula || '—'}</strong>
+                  </span>
                   {selectedUser.did ? (
-                    <>
-                      {' '}- DID: <span className="font-mono text-xs text-slate-200">{selectedUser.did}</span>
-                    </>
+                    <span className="history-modal__chip history-modal__chip--accent">
+                      DID
+                      <code>{selectedUser.did}</code>
+                    </span>
                   ) : null}
-                </p>
+                </div>
               </div>
-              <button className="btn-ghost" onClick={fecharModal} type="button">
-                Fechar
+              <button
+                className="history-modal__close"
+                onClick={fecharModal}
+                type="button"
+                aria-label="Fechar histórico"
+              >
+                <span aria-hidden="true">×</span>
+                <span className="sr-only">Fechar</span>
               </button>
-            </div>
+            </header>
 
-            <div className="mt-6 space-y-6">
-              <div className="summary-grid">
-                <article className="glass-panel glass-panel--subtle summary-card">
-                  <span className="summary-card__label">Total de presenças</span>
-                  <span className="summary-card__value">{presencas.length}</span>
-                </article>
-                <article className="glass-panel glass-panel--subtle summary-card">
-                  <span className="summary-card__label">Primeiro registro</span>
-                  <span className="summary-card__value text-base">
-                    {primeiraPresenca ? formatDateTime(primeiraPresenca.dataHora) : '—'}
-                  </span>
-                </article>
-                <article className="glass-panel glass-panel--subtle summary-card">
-                  <span className="summary-card__label">Último registro</span>
-                  <span className="summary-card__value text-base">
-                    {ultimaPresenca ? formatDateTime(ultimaPresenca.dataHora) : '—'}
-                  </span>
-                </article>
-              </div>
+            <section className="history-modal__summary summary-grid">
+              <article className="glass-panel glass-panel--subtle summary-card">
+                <span className="summary-card__label">Total de presenças</span>
+                <span className="summary-card__value">{presencas.length}</span>
+              </article>
+              <article className="glass-panel glass-panel--subtle summary-card">
+                <span className="summary-card__label">Primeiro registro</span>
+                <span className="summary-card__value text-base">
+                  {primeiraPresenca ? formatDateTime(primeiraPresenca.dataHora) : '—'}
+                </span>
+              </article>
+              <article className="glass-panel glass-panel--subtle summary-card">
+                <span className="summary-card__label">Último registro</span>
+                <span className="summary-card__value text-base">
+                  {ultimaPresenca ? formatDateTime(ultimaPresenca.dataHora) : '—'}
+                </span>
+              </article>
+            </section>
 
+            <div className="history-modal__body">
               {loadingPresencas ? (
-                <div className="text-sm text-slate-200">Carregando presenças...</div>
+                <div className="history-modal__status">Carregando presenças...</div>
               ) : presencasError ? (
-                <div className="text-sm text-red-300">{presencasError}</div>
+                <div className="history-modal__status history-modal__status--error">{presencasError}</div>
               ) : presencas.length === 0 ? (
-                <div className="text-sm text-slate-200">Nenhuma presença encontrada para este usuário.</div>
+                <div className="history-modal__status history-modal__status--empty">
+                  Nenhuma presença encontrada para este usuário.
+                </div>
               ) : (
-                <div className="admin-events">
+                <div className="admin-events history-modal__events">
                   {presencasAgrupadas.map((grupo) => (
                     <section className="event-group" key={grupo.eventoID || grupo.nomeEvento}>
                       <header className="event-group__header">
@@ -368,7 +381,10 @@ export default function AdminDashboard() {
 
                       <ol className="event-group__list">
                         {grupo.registros.map((presenca) => (
-                          <li className="event-group__item" key={presenca.id || presenca.hash || `${presenca.eventoID}-${presenca.dataHora}`}>
+                          <li
+                            className="event-group__item"
+                            key={presenca.id || presenca.hash || `${presenca.eventoID}-${presenca.dataHora}`}
+                          >
                             <div className="event-group__marker" aria-hidden="true" />
                             <div className="event-group__content">
                               <span className="event-group__meta">{formatDateTime(presenca.dataHora)}</span>
