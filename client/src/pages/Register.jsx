@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import labLogo from '../assets/lab-logo.png'
+import { setActiveIdentity, upsertIdentityInVault } from '../utils/identityVault'
 
 function abToBase64(buffer) {
   const bytes = new Uint8Array(buffer)
@@ -152,6 +153,10 @@ export default function Register() {
     setLoading(true)
     try {
       localStorage.removeItem('isAdmin')
+      const previousDid = localStorage.getItem('userDID') || ''
+      const previousMatricula = localStorage.getItem('matricula') || ''
+      const previousPrivateKey = localStorage.getItem('privateKeyJwk') || ''
+
       const did = gerarDID()
       const kp = await gerarParChaves()
       const publicKeyB64 = await exportPublicKeyBase64(kp.publicKey)
@@ -177,11 +182,26 @@ export default function Register() {
         throw new Error(txt || 'Erro ao registrar usuário no backend')
       }
 
+      if (previousDid && previousDid !== did) {
+        upsertIdentityInVault({
+          did: previousDid,
+          matricula: previousMatricula,
+          privateKeyJwk: previousPrivateKey,
+          status: 'revoked',
+        })
+      }
+
       localStorage.setItem('privateKeyJwk', JSON.stringify(privateJwk))
       localStorage.setItem('userDID', did)
       localStorage.setItem('userName', registerNome.trim())
       localStorage.setItem('matricula', registerMatricula.trim())
       localStorage.setItem('curso', registerCurso)
+
+      setActiveIdentity({
+        did,
+        matricula: registerMatricula.trim(),
+        privateKeyJwk: JSON.stringify(privateJwk),
+      })
 
       setMessage('Identidade criada com sucesso neste dispositivo. Redirecionando para o login...')
       setTimeout(() => navigate('/'), 1200)
