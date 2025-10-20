@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ToastProvider'
 import useVantaNet from '../hooks/useVantaNet'
-import { loadProfilePhoto } from '../utils/profilePhotoStorage'
+import { getProfilePhotoStorageKey, loadProfilePhoto } from '../utils/profilePhotoStorage'
 
 function gerarUUID() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
@@ -91,8 +91,31 @@ export default function Home() {
       return
     }
 
-    const foto = loadProfilePhoto({ isAdmin: false, did, matricula })
+    const context = { isAdmin: false, did, matricula }
+    const foto = loadProfilePhoto(context)
     setProfilePhoto(foto)
+  }, [did, matricula])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined
+    }
+
+    const context = { isAdmin: false, did, matricula }
+    const key = getProfilePhotoStorageKey(context)
+
+    function handleProfilePhotoUpdate(event) {
+      if (!event?.detail || event.detail.key !== key) {
+        return
+      }
+      setProfilePhoto(event.detail.dataUrl || '')
+    }
+
+    window.addEventListener('profile-photo-updated', handleProfilePhotoUpdate)
+
+    return () => {
+      window.removeEventListener('profile-photo-updated', handleProfilePhotoUpdate)
+    }
   }, [did, matricula])
 
   function abrirModal() {
@@ -241,11 +264,11 @@ export default function Home() {
                 </div>
                 <div className="participant-profile__details">
                   <p className="participant-profile__name">{userName || 'Participante autenticado'}</p>
-                  <p className="participant-profile__caption">
-                    {profilePhoto
-                      ? 'Esta é a foto vinculada ao seu perfil no sistema.'
-                      : 'Adicione uma foto pelo menu de configurações no topo para personalizar seu perfil.'}
-                  </p>
+                  {!profilePhoto ? (
+                    <p className="participant-profile__caption">
+                      Adicione uma foto pelo menu de configurações no topo para personalizar seu perfil.
+                    </p>
+                  ) : null}
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">

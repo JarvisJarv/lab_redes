@@ -38,6 +38,24 @@ export function loadProfilePhoto(context) {
   }
 }
 
+function emitProfilePhotoEvent(key, dataUrl) {
+  if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') {
+    return
+  }
+
+  try {
+    const evento = new CustomEvent('profile-photo-updated', {
+      detail: {
+        key,
+        dataUrl: typeof dataUrl === 'string' ? dataUrl : '',
+      },
+    })
+    window.dispatchEvent(evento)
+  } catch (err) {
+    console.warn('Não foi possível emitir evento de atualização da foto de perfil.', err)
+  }
+}
+
 export function saveProfilePhoto(context, dataUrl) {
   if (context?.isAdmin) {
     return
@@ -51,6 +69,7 @@ export function saveProfilePhoto(context, dataUrl) {
     } else {
       storage.removeItem(key)
     }
+    emitProfilePhotoEvent(key, dataUrl || '')
   } catch (err) {
     console.warn('Erro ao salvar foto de perfil no localStorage.', err)
   }
@@ -65,6 +84,7 @@ export function removeProfilePhoto(context) {
   const key = getProfilePhotoStorageKey(context)
   try {
     storage.removeItem(key)
+    emitProfilePhotoEvent(key, '')
   } catch (err) {
     console.warn('Erro ao remover foto de perfil do localStorage.', err)
   }
