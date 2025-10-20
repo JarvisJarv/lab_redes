@@ -595,12 +595,52 @@ export default function AdminDashboard() {
               </div>
               <div className="history-modal__actions">
                 <button
-                  className="btn-primary"
+                  className="btn-primary inline-flex items-center justify-center gap-2"
                   type="button"
                   onClick={gerarRelatorioSelecionado}
                   disabled={modalReportLoading || presencas.length === 0}
+                  title={
+                    presencas.length === 0
+                      ? 'Não há presenças disponíveis para gerar o relatório'
+                      : 'Baixar o relatório completo deste aluno'
+                  }
                 >
-                  {modalReportLoading ? 'Gerando...' : 'Gerar relatório'}
+                  {modalReportLoading ? (
+                    <>
+                      <svg
+                        aria-hidden="true"
+                        className="h-4 w-4 animate-spin"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="9" strokeOpacity="0.25" />
+                        <path d="M21 12a9 9 0 0 1-9 9" />
+                      </svg>
+                      <span>Gerando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        aria-hidden="true"
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 5v10" />
+                        <path d="M6 11l6 6 6-6" />
+                        <rect width="18" height="4" x="3" y="19" rx="1" />
+                      </svg>
+                      <span>Gerar relatório</span>
+                    </>
+                  )}
                 </button>
               </div>
               <button
