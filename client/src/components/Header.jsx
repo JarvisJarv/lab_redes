@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import logo from '../assets/logo.svg'
 
 export default function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const nome = localStorage.getItem('userName') || ''
+  const isAdmin = localStorage.getItem('isAdmin') === 'true'
+
+  const chipLabel = isAdmin ? 'Administrador' : nome ? 'Bem-vindo' : 'Sistema'
+  const titleLabel = isAdmin ? 'Painel Administrativo' : 'Sistema de Presenças'
 
   function handleLogout() {
     localStorage.removeItem('userDID')
@@ -25,35 +30,42 @@ export default function Header() {
   return (
     <header className="app-header">
       <div className="app-header__inner">
-        <div>
-          <div className="chip">{nome ? 'Bem-vindo' : 'Sistema'}</div>
-          <div className="app-header__title">Sistema de Presenças</div>
+        <div className="app-header__brand">
+          <img className="app-header__logo" src={logo} alt="Logotipo do Sistema de Presenças" />
+          <div>
+            <div className="chip">{chipLabel}</div>
+            <div className="app-header__title">{titleLabel}</div>
+          </div>
         </div>
         <nav
           id="primary-navigation"
           className={`app-header__nav ${menuOpen ? 'is-open' : ''}`}
           aria-label="Navegação principal"
         >
-          <NavLink
-            to="/home"
-            end
-            className={({ isActive }) =>
-              isActive ? 'app-header__link active' : 'app-header__link'
-            }
-            onClick={() => setMenuOpen(false)}
-          >
-            Início
-          </NavLink>
+          {!isAdmin && (
+            <>
+              <NavLink
+                to="/home"
+                end
+                className={({ isActive }) =>
+                  isActive ? 'app-header__link active' : 'app-header__link'
+                }
+                onClick={() => setMenuOpen(false)}
+              >
+                Início
+              </NavLink>
 
-          <NavLink
-            to="/historico"
-            className={({ isActive }) =>
-              isActive ? 'app-header__link active' : 'app-header__link'
-            }
-            onClick={() => setMenuOpen(false)}
-          >
-            Histórico
-          </NavLink>
+              <NavLink
+                to="/historico"
+                className={({ isActive }) =>
+                  isActive ? 'app-header__link active' : 'app-header__link'
+                }
+                onClick={() => setMenuOpen(false)}
+              >
+                Histórico
+              </NavLink>
+            </>
+          )}
 
           <button
             onClick={() => {
