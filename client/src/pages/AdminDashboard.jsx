@@ -273,7 +273,7 @@ export default function AdminDashboard() {
                     id="admin-search"
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
-                    placeholder="Busque por nome, matrícula ou curso"
+                    placeholder="Buscar"
                     type="search"
                     autoComplete="off"
                   />
