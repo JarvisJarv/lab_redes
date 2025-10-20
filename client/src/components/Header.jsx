@@ -1,14 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { loadProfilePhoto, removeProfilePhoto, saveProfilePhoto } from '../utils/profilePhotoStorage'
 
 export default function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [profilePhoto, setProfilePhoto] = useState(() => localStorage.getItem('profilePhoto') || '')
-  const fileInputRef = useRef(null)
-  const nome = localStorage.getItem('userName') || ''
   const isAdmin = localStorage.getItem('isAdmin') === 'true'
+  const nome = localStorage.getItem('userName') || ''
+  const did = !isAdmin ? localStorage.getItem('userDID') || '' : ''
+  const matricula = !isAdmin ? localStorage.getItem('matricula') || '' : ''
+  const storageSignature = `${isAdmin ? 'admin' : 'user'}|${did}|${matricula}`
+  const [profilePhoto, setProfilePhoto] = useState(() => loadProfilePhoto({ isAdmin, did, matricula }))
+  const fileInputRef = useRef(null)
+  const signatureRef = useRef(storageSignature)
 
   const chipLabel = isAdmin ? 'Administrador' : nome ? 'Bem-vindo' : 'Sistema'
   const titleLabel = isAdmin ? 'Painel Administrativo' : 'Sistema de Presenças'
@@ -33,6 +38,72 @@ export default function Header() {
     setMenuOpen(false)
   }, [location.pathname])
 
+  useEffect(() => {
+    // Remove chave antiga que compartilhava fotos entre usuários
+    try {
+      localStorage.removeItem('profilePhoto')
+    } catch (err) {
+      console.warn('Não foi possível limpar foto de perfil legada.', err)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (signatureRef.current !== storageSignature) {
+      signatureRef.current = storageSignature
+      setProfilePhoto(loadProfilePhoto({ isAdmin, did, matricula }))
+    }
+  }, [storageSignature, isAdmin, did, matricula])
+
+  useEffect(() => {
+    if (isAdmin || !did) {
+      return
+    }
+
+    let isCanceled = false
+
+    async function sincronizarFoto() {
+      try {
+        const response = await fetch(`/api/users?did=${encodeURIComponent(did)}`)
+        if (!response.ok) return
+        const data = await response.json()
+        if (!Array.isArray(data) || data.length === 0) return
+        const usuario = data[0]
+        const fotoRemota = typeof usuario.profilePhoto === 'string' ? usuario.profilePhoto : ''
+
+        if (isCanceled) return
+
+        if (fotoRemota && fotoRemota !== profilePhoto) {
+          saveProfilePhoto({ isAdmin, did, matricula }, fotoRemota)
+          setProfilePhoto(fotoRemota)
+        } else if (!fotoRemota && profilePhoto) {
+          removeProfilePhoto({ isAdmin, did, matricula })
+          setProfilePhoto('')
+        }
+      } catch (err) {
+        console.warn('Erro ao sincronizar foto de perfil com o servidor.', err)
+      }
+    }
+
+    sincronizarFoto()
+
+    return () => {
+      isCanceled = true
+    }
+  }, [did, isAdmin, profilePhoto, matricula])
+
+  async function persistProfilePhotoToServer(nextPhoto) {
+    if (isAdmin || !did) return
+    try {
+      await fetch('/api/users/photo', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ did, profilePhoto: nextPhoto || '' }),
+      })
+    } catch (err) {
+      console.warn('Erro ao salvar foto de perfil no servidor.', err)
+    }
+  }
+
   function handleProfilePhotoChange(event) {
     const file = event.target.files?.[0]
 
@@ -44,9 +115,8 @@ export default function Header() {
     reader.onload = () => {
       const result = typeof reader.result === 'string' ? reader.result : ''
       setProfilePhoto(result)
-      if (result) {
-        localStorage.setItem('profilePhoto', result)
-      }
+      saveProfilePhoto({ isAdmin, did, matricula }, result)
+      persistProfilePhotoToServer(result)
     }
     reader.readAsDataURL(file)
 
@@ -58,7 +128,8 @@ export default function Header() {
 
   function handleRemoveProfilePhoto() {
     setProfilePhoto('')
-    localStorage.removeItem('profilePhoto')
+    removeProfilePhoto({ isAdmin, did, matricula })
+    persistProfilePhotoToServer('')
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }

@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import labLogo from '../assets/lab-logo.png'
+import { removeProfilePhoto, saveProfilePhoto } from '../utils/profilePhotoStorage'
 
 // Helper: export ArrayBuffer para base64
 function abToBase64(buffer) {
@@ -273,6 +275,16 @@ export default function Login() {
           if (u.did) localStorage.setItem('userDID', u.did)
           if (u.userName) localStorage.setItem('userName', u.userName)
           if (u.matricula) localStorage.setItem('matricula', u.matricula)
+          const context = {
+            isAdmin: false,
+            did: u.did || '',
+            matricula: u.matricula || '',
+          }
+          if (u.profilePhoto) {
+            saveProfilePhoto(context, u.profilePhoto)
+          } else {
+            removeProfilePhoto(context)
+          }
         }
       } catch (err) {
         console.warn('Erro ao garantir perfil:', err)
@@ -390,6 +402,11 @@ export default function Login() {
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-10">
         <div className="mb-10 text-center lg:text-left">
+          <img
+            src={labLogo}
+            alt="Laboratório de Redes"
+            className="mx-auto mb-6 h-16 w-auto drop-shadow-xl lg:mx-0"
+          />
           <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
             Self-sovereign identity
           </span>
