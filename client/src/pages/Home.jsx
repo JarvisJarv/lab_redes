@@ -304,11 +304,6 @@ export default function Home() {
                 </div>
                 <div className="participant-profile__details">
                   <p className="participant-profile__name">{userName || 'Participante autenticado'}</p>
-                  {!profilePhoto ? (
-                    <p className="participant-profile__caption">
-                      Adicione uma foto pelo menu de configurações no topo para personalizar seu perfil.
-                    </p>
-                  ) : null}
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">

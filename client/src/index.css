@@ -1540,6 +1540,12 @@ tbody tr:last-child {
   gap: 0.6rem;
 }
 
+.history-modal__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .history-modal__chip {
   display: inline-flex;
   align-items: center;
@@ -1674,6 +1680,15 @@ tbody tr:last-child {
 
   .history-modal__header {
     padding-bottom: 1.25rem;
+  }
+
+  .history-modal__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .history-modal__actions .btn-primary {
+    width: 100%;
   }
 
   .history-modal__title {

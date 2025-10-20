@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import useVantaNet from '../hooks/useVantaNet'
 import PhotoModal from '../components/PhotoModal'
+import { useToast } from '../components/ToastProvider'
+import { downloadHistoryReport } from '../utils/report'
 
 function formatDateTime(isoString) {
   if (!isoString) return '—'
@@ -53,6 +55,9 @@ export default function AdminDashboard() {
   const [eventSearchTerm, setEventSearchTerm] = useState('')
   const vantaRef = useVantaNet()
   const [photoPreview, setPhotoPreview] = useState({ isOpen: false, src: '', alt: '' })
+  const [reportLoadingId, setReportLoadingId] = useState('')
+  const [modalReportLoading, setModalReportLoading] = useState(false)
+  const { show } = useToast()
 
   useEffect(() => {
     async function carregarUsuarios() {
@@ -120,12 +125,70 @@ export default function AdminDashboard() {
     }
   }
 
+  async function gerarRelatorioUsuario(user) {
+    if (!user?.did) {
+      show('Usuário não possui DID para gerar relatório')
+      return
+    }
+
+    setReportLoadingId(user.did)
+    try {
+      const res = await fetch(`/api/presencas?did=${encodeURIComponent(user.did)}`)
+      if (!res.ok) {
+        const txt = await res.text()
+        throw new Error(txt || 'Erro ao buscar presenças do usuário')
+      }
+      const data = await res.json()
+      if (!Array.isArray(data)) {
+        throw new Error('Dados de presença inválidos')
+      }
+
+      downloadHistoryReport(data, {
+        ownerName: user.userName || undefined,
+        ownerIdentifier: user.matricula || user.did || undefined,
+        ownerDid: user.did || undefined,
+        fileNamePrefix: 'relatorio-presencas-aluno',
+      })
+      show('Relatório gerado com sucesso')
+    } catch (err) {
+      console.error('Erro ao gerar relatório do usuário', err)
+      show('Não foi possível gerar o relatório deste usuário')
+    } finally {
+      setReportLoadingId('')
+    }
+  }
+
+  function gerarRelatorioSelecionado() {
+    if (!selectedUser) return
+    if (!presencas.length) {
+      show('Nenhuma presença disponível para gerar relatório')
+      return
+    }
+
+    setModalReportLoading(true)
+    try {
+      downloadHistoryReport(presencas, {
+        ownerName: selectedUser.userName || undefined,
+        ownerIdentifier: selectedUser.matricula || selectedUser.did || undefined,
+        ownerDid: selectedUser.did || undefined,
+        fileNamePrefix: 'relatorio-presencas-aluno',
+      })
+      show('Relatório gerado com sucesso')
+    } catch (err) {
+      console.error('Erro ao gerar relatório do histórico aberto', err)
+      show('Não foi possível gerar o relatório do histórico')
+    } finally {
+      setModalReportLoading(false)
+    }
+  }
+
   function fecharModal() {
     setSelectedUser(null)
     setPresencas([])
     setPresencasError('')
     setLoadingPresencas(false)
     setEventSearchTerm('')
+    setModalReportLoading(false)
   }
 
   function abrirFoto(src, altBase) {
@@ -357,9 +420,19 @@ export default function AdminDashboard() {
                               </td>
                               <td>{formatDateOnly(user.createdAt)}</td>
                               <td>
-                                <button className="btn-secondary" type="button" onClick={() => abrirHistorico(user)}>
-                                  Ver histórico
-                                </button>
+                                <div className="flex flex-col gap-2 sm:flex-row">
+                                  <button className="btn-secondary" type="button" onClick={() => abrirHistorico(user)}>
+                                    Ver histórico
+                                  </button>
+                                  <button
+                                    className="btn-primary"
+                                    type="button"
+                                    onClick={() => gerarRelatorioUsuario(user)}
+                                    disabled={!user.did || reportLoadingId === user.did}
+                                  >
+                                    {user.did && reportLoadingId === user.did ? 'Gerando...' : 'Gerar relatório'}
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))}
@@ -425,9 +498,19 @@ export default function AdminDashboard() {
                             </div>
                           </dl>
                           <footer>
-                            <button className="btn-secondary" type="button" onClick={() => abrirHistorico(user)}>
-                              Ver histórico
-                            </button>
+                            <div className="flex flex-col gap-2">
+                              <button className="btn-secondary" type="button" onClick={() => abrirHistorico(user)}>
+                                Ver histórico
+                              </button>
+                              <button
+                                className="btn-primary"
+                                type="button"
+                                onClick={() => gerarRelatorioUsuario(user)}
+                                disabled={!user.did || reportLoadingId === user.did}
+                              >
+                                {user.did && reportLoadingId === user.did ? 'Gerando...' : 'Gerar relatório'}
+                              </button>
+                            </div>
                           </footer>
                         </article>
                       ))}
@@ -459,6 +542,16 @@ export default function AdminDashboard() {
                     </span>
                   ) : null}
                 </div>
+              </div>
+              <div className="history-modal__actions">
+                <button
+                  className="btn-primary"
+                  type="button"
+                  onClick={gerarRelatorioSelecionado}
+                  disabled={modalReportLoading || presencas.length === 0}
+                >
+                  {modalReportLoading ? 'Gerando...' : 'Gerar relatório'}
+                </button>
               </div>
               <button
                 className="history-modal__close"
