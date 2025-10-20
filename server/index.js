@@ -17,37 +17,41 @@ const path = require('path')
 const DATA_FILE = path.join(__dirname, 'presencas.json')
 const USERS_FILE = path.join(__dirname, 'users.json')
 
-let presencas = []
-let users = []
+let presencas = [];
+let users = [];
 try {
   if (fs.existsSync(DATA_FILE)) {
-    const raw = fs.readFileSync(DATA_FILE, 'utf-8')
-    presencas = JSON.parse(raw)
+    const raw = fs.readFileSync(DATA_FILE, 'utf-8');
+    presencas = JSON.parse(raw);
   }
   if (fs.existsSync(USERS_FILE)) {
-    const rawu = fs.readFileSync(USERS_FILE, 'utf-8')
-    users = JSON.parse(rawu)
-    let usersUpdated = false
+    const rawu = fs.readFileSync(USERS_FILE, 'utf-8');
+    users = JSON.parse(rawu);
+    let usersUpdated = false;
     users = users.map((u) => {
-      if (!u) return u
-      let updatedUser = { ...u }
+      if (!u) return u;
+      let updatedUser = { ...u };
       if (!u.createdAt) {
-        usersUpdated = true
-        updatedUser = { ...updatedUser, createdAt: new Date().toISOString() }
+        usersUpdated = true;
+        updatedUser = { ...updatedUser, createdAt: new Date().toISOString() };
       }
       if (typeof u.profilePhoto !== 'string') {
-        usersUpdated = true
-        updatedUser = { ...updatedUser, profilePhoto: '' }
+        usersUpdated = true;
+        updatedUser = { ...updatedUser, profilePhoto: '' };
       }
-      return updatedUser
-    })
+      if (typeof u.publicKey !== 'string' || u.publicKey.length > 120) {
+        usersUpdated = true;
+        updatedUser = { ...updatedUser, publicKey: '' };
+      }
+      return updatedUser;
+    });
     if (usersUpdated) {
-      salvarUsers()
+      salvarUsers();
     }
   }
 } catch (err) {
-  console.error('Erro ao carregar presencas do arquivo:', err)
-  presencas = []
+  console.error('Erro ao carregar presencas do arquivo:', err);
+  presencas = [];
 }
 
 // Gera um ID aleatório simples
@@ -65,11 +69,13 @@ function salvarUsers() {
 }
 
 // POST /api/register
-// Recebe { userName, matricula, curso, did, publicKey }
+// Recebe { userName, matricula, curso, did }
 app.post('/api/register', (req, res) => {
-  const { userName, matricula, curso, did, publicKey } = req.body || {}
-  if (!userName || !matricula || !did || !publicKey) {
-    return res.status(400).json({ error: 'Campos userName, matricula, did e publicKey são obrigatórios' })
+  const { userName, matricula, curso, did } = req.body || {}
+  if (!userName || !matricula || !did) {
+    return res
+      .status(400)
+      .json({ error: 'Campos userName, matricula e did são obrigatórios' })
   }
 
   const existente = users.find((u) => u.did === did || u.matricula === matricula)
@@ -83,9 +89,9 @@ app.post('/api/register', (req, res) => {
     matricula,
     curso: curso || '',
     did,
-    publicKey,
     createdAt: new Date().toISOString(),
     profilePhoto: typeof req.body.profilePhoto === 'string' ? req.body.profilePhoto : '',
+    publicKey: '',
   }
   users.push(user)
   salvarUsers()

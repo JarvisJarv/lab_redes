@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import useVantaNet from '../hooks/useVantaNet'
+import PhotoModal from '../components/PhotoModal'
 
 function formatDateTime(isoString) {
   if (!isoString) return '—'
@@ -51,6 +52,7 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('')
   const [eventSearchTerm, setEventSearchTerm] = useState('')
   const vantaRef = useVantaNet()
+  const [photoPreview, setPhotoPreview] = useState({ isOpen: false, src: '', alt: '' })
 
   useEffect(() => {
     async function carregarUsuarios() {
@@ -124,6 +126,22 @@ export default function AdminDashboard() {
     setPresencasError('')
     setLoadingPresencas(false)
     setEventSearchTerm('')
+  }
+
+  function abrirFoto(src, altBase) {
+    if (!src) return
+    setPhotoPreview({ isOpen: true, src, alt: altBase })
+  }
+
+  function fecharFoto() {
+    setPhotoPreview((prev) => ({ ...prev, isOpen: false }))
+  }
+
+  function handleAvatarKeyDown(event, callback) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      callback()
+    }
   }
 
   const totalUsuariosComDid = useMemo(() => users.filter((u) => Boolean(u.did)).length, [users])
@@ -298,7 +316,29 @@ export default function AdminDashboard() {
                           {filteredUsers.map((user) => (
                             <tr key={user.id || user.did}>
                               <td className="admin-users-table__photo-cell">
-                                <div className="admin-user-avatar admin-user-avatar--table">
+                                <div
+                                  className={`admin-user-avatar admin-user-avatar--table ${
+                                    user.profilePhoto ? 'is-clickable' : ''
+                                  }`}
+                                  role={user.profilePhoto ? 'button' : undefined}
+                                  tabIndex={user.profilePhoto ? 0 : -1}
+                                  onClick={() =>
+                                    user.profilePhoto &&
+                                    abrirFoto(
+                                      user.profilePhoto,
+                                      `Foto de ${user.userName || user.matricula || 'usuário'} ampliada`
+                                    )
+                                  }
+                                  onKeyDown={(event) =>
+                                    user.profilePhoto &&
+                                    handleAvatarKeyDown(event, () =>
+                                      abrirFoto(
+                                        user.profilePhoto,
+                                        `Foto de ${user.userName || user.matricula || 'usuário'} ampliada`
+                                      )
+                                    )
+                                  }
+                                >
                                   {user.profilePhoto ? (
                                     <img
                                       src={user.profilePhoto}
@@ -332,7 +372,29 @@ export default function AdminDashboard() {
                         <article className="admin-user-card" key={(user.id || user.did) ?? user.matricula}>
                           <header className="admin-user-card__header">
                             <div className="admin-user-card__photo">
-                              <div className="admin-user-avatar admin-user-avatar--card">
+                              <div
+                                className={`admin-user-avatar admin-user-avatar--card ${
+                                  user.profilePhoto ? 'is-clickable' : ''
+                                }`}
+                                role={user.profilePhoto ? 'button' : undefined}
+                                tabIndex={user.profilePhoto ? 0 : -1}
+                                onClick={() =>
+                                  user.profilePhoto &&
+                                  abrirFoto(
+                                    user.profilePhoto,
+                                    `Foto de ${user.userName || user.matricula || 'usuário'} ampliada`
+                                  )
+                                }
+                                onKeyDown={(event) =>
+                                  user.profilePhoto &&
+                                  handleAvatarKeyDown(event, () =>
+                                    abrirFoto(
+                                      user.profilePhoto,
+                                      `Foto de ${user.userName || user.matricula || 'usuário'} ampliada`
+                                    )
+                                  )
+                                }
+                              >
                                 {user.profilePhoto ? (
                                   <img
                                     src={user.profilePhoto}
@@ -506,6 +568,12 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+      <PhotoModal
+        isOpen={photoPreview.isOpen}
+        src={photoPreview.src}
+        alt={photoPreview.alt}
+        onClose={fecharFoto}
+      />
     </>
   )
 }
