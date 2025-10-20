@@ -252,7 +252,9 @@ export default function Login() {
     // Verifica privateKey para usuários padrão
     const pk = localStorage.getItem('privateKeyJwk')
     if (!pk) {
-      setError('Identidade não encontrada neste dispositivo. Crie uma nova identidade.')
+      setError(
+        'Este dispositivo não possui a chave privada necessária para esta identidade. Entre em contato com um administrador para recuperar o acesso.'
+      )
       return
     }
 
@@ -339,26 +341,16 @@ export default function Login() {
           const derivedPubB64 = await publicSpkiBase64FromPrivateJwkString(localPrivateJwk)
 
           if (derivedPubB64 === null) {
-            // Não foi possível derivar a publicKey localmente; como existe privateKey e usuário no backend,
-            // prosseguimos com um login por matrícula (fallback). Em produção, não é recomendado sem verificação.
-            if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
-            if (!localStorage.getItem('userDID')) localStorage.setItem('userDID', user.did || '')
-            if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
-            persistLoginName()
-            await ensureProfile(enteredMat)
-            setMessage('Autenticado por fallback (não foi possível derivar publicKey local). Redirecionando...')
-            setTimeout(() => navigate('/home'), 600)
+            setError(
+              'Não foi possível validar a chave privada armazenada neste dispositivo. Procure um administrador para restaurar o acesso antes de continuar.'
+            )
             return
           }
 
           if (!user.publicKey) {
-            if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
-            if (!localStorage.getItem('userDID')) localStorage.setItem('userDID', user.did || '')
-            if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
-            persistLoginName()
-            await ensureProfile(enteredMat)
-            setMessage('Autenticado — chave pública não registrada no backend. Redirecionando...')
-            setTimeout(() => navigate('/home'), 600)
+            setError(
+              'A identidade informada não possui chave pública registrada. Entre em contato com um administrador para regularizar seu cadastro.'
+            )
             return
           }
 
@@ -375,7 +367,7 @@ export default function Login() {
         }
 
         setError(
-          'A chave privada presente neste dispositivo pertence a outra identidade. Crie uma nova identidade para a matrícula informada.'
+          'A chave privada presente neste dispositivo pertence a outra identidade. Entre em contato com um administrador para restaurar a identidade correta.'
         )
         return
       } catch (err) {
