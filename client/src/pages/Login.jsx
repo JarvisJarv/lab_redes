@@ -221,7 +221,6 @@ export default function Login() {
       }
       setLoginNome(registerNome.trim())
       setLoginMatricula(registerMatricula.trim())
-      setTimeout(() => navigate('/home'), 1200)
     } catch (err) {
       console.error(err)
       setError('Erro ao criar identidade: ' + (err.message || ''))
@@ -463,12 +462,14 @@ export default function Login() {
             <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl sm:p-8">
               <h2 className="text-xl font-semibold text-white">Login rápido</h2>
               <p className="mt-1 text-sm text-slate-200">
-                Autentique-se com sua matrícula e a chave privada armazenada neste dispositivo.
+                Autentique-se com seu Nome e matrícula.
               </p>
 
               <form onSubmit={handleLogin} className="mt-6 space-y-5">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-100">Nome (opcional)</label>
+                  <label className="text-sm font-medium text-slate-100">
+                    Nome <span className="text-red-300">*</span>
+                  </label>
                   <input
                     value={loginNome}
                     onChange={(e) => setLoginNome(e.target.value)}
@@ -490,8 +491,11 @@ export default function Login() {
                     <span className="text-xs text-red-200">A matrícula é obrigatória para realizar o login.</span>
                   )}
                 </div>
-
-                <button type="submit" className={primaryButtonClass} disabled={!loginMatricula.trim()}>
+                <button
+                  type="submit"
+                  className={primaryButtonClass}
+                  disabled={!loginMatricula.trim() || !loginNome.trim()}
+                >
                   Entrar agora
                 </button>
               </form>
