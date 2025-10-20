@@ -336,14 +336,14 @@ export default function Login() {
                 <p className="mt-1 text-sm text-slate-200">Autentique-se com seu Nome e matrícula.</p>
 
                 {(error || message) && (
-                  <div className="mt-6 space-y-2 text-sm">
+                  <div className="mt-6 flex flex-col items-center space-y-3 text-center text-sm">
                     {error && (
-                      <div className="rounded-xl border border-red-300/30 bg-red-900/30 px-4 py-3 text-red-200">
+                      <div className="w-full max-w-sm rounded-xl border border-red-400/40 bg-red-950/60 px-4 py-3 text-red-100 shadow-lg shadow-red-900/20">
                         {error}
                       </div>
                     )}
                     {message && (
-                      <div className="rounded-xl border border-emerald-300/30 bg-emerald-900/20 px-4 py-3 text-emerald-200">
+                      <div className="w-full max-w-sm rounded-xl border border-emerald-400/40 bg-emerald-950/50 px-4 py-3 text-emerald-100 shadow-lg shadow-emerald-900/20">
                         {message}
                       </div>
                     )}
