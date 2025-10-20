@@ -6,6 +6,7 @@ import Historico from './pages/Historico'
 import AdminDashboard from './pages/AdminDashboard'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import { ProfilePhotoProvider } from './contexts/ProfilePhotoContext'
 
 function Protected({ children }) {
   const userDID = localStorage.getItem('userDID')
@@ -24,17 +25,19 @@ function AdminProtected({ children }) {
 
 function Layout() {
   return (
-    <div className="app-shell">
-      <div className="app-shell__background" aria-hidden="true">
-        <div className="app-shell__gradient" />
-        <div className="app-shell__grid" />
+    <ProfilePhotoProvider>
+      <div className="app-shell">
+        <div className="app-shell__background" aria-hidden="true">
+          <div className="app-shell__gradient" />
+          <div className="app-shell__grid" />
+        </div>
+        <Header />
+        <main className="app-shell__content">
+          <Outlet />
+        </main>
+        <Footer />
       </div>
-      <Header />
-      <main className="app-shell__content">
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
+    </ProfilePhotoProvider>
   )
 }
 

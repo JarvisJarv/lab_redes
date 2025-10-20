@@ -3,14 +3,17 @@ import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ToastProvider'
 import ModalConfirm from '../components/ModalConfirm'
 import useVantaNet from '../hooks/useVantaNet'
+import { generateParticipantHistoryPdf } from '../utils/pdfReport'
 
 export default function Historico() {
   const navigate = useNavigate()
   const [presencas, setPresencas] = useState([])
   const vantaRef = useVantaNet()
+  const [userName, setUserName] = useState('')
 
   useEffect(() => {
     const raw = localStorage.getItem('presencas')
+    const storedName = localStorage.getItem('userName') || ''
     try {
       const arr = raw ? JSON.parse(raw) : []
       setPresencas(Array.isArray(arr) ? arr.reverse() : [])
@@ -18,6 +21,8 @@ export default function Historico() {
       console.error('Erro ao ler presencas', err)
       setPresencas([])
     }
+
+    setUserName(storedName)
   }, [])
 
   const { show } = useToast()
@@ -32,6 +37,20 @@ export default function Historico() {
     setPresencas([])
     setConfirmOpen(false)
     show('Histórico limpo')
+  }
+
+  function gerarRelatorioPdf() {
+    try {
+      generateParticipantHistoryPdf({
+        userName,
+        presencas,
+        formatDate: (presenca) => formatarData(presenca),
+      })
+      show('Relatório em PDF gerado com sucesso')
+    } catch (err) {
+      console.error('Erro ao gerar relatório em PDF', err)
+      show('Não foi possível gerar o PDF. Tente novamente.')
+    }
   }
 
   const ultimaPresenca = presencas.length > 0 ? presencas[0] : null
@@ -66,6 +85,14 @@ export default function Historico() {
                 <div className="flex flex-wrap gap-2">
                   <button className="btn-secondary" onClick={() => navigate('/home')} type="button">
                     Voltar para a página inicial
+                  </button>
+                  <button
+                    className="btn-primary"
+                    onClick={gerarRelatorioPdf}
+                    type="button"
+                    disabled={presencas.length === 0}
+                  >
+                    Gerar relatório (PDF)
                   </button>
                   <button className="btn-danger" onClick={limparHistorico} type="button">
                     Limpar histórico

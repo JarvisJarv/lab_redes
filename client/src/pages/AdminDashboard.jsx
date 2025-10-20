@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import useVantaNet from '../hooks/useVantaNet'
 import PhotoModal from '../components/PhotoModal'
+import { generateAdminHistoryPdf } from '../utils/pdfReport'
 
 function formatDateTime(isoString) {
   if (!isoString) return '—'
@@ -135,6 +136,22 @@ export default function AdminDashboard() {
 
   function fecharFoto() {
     setPhotoPreview((prev) => ({ ...prev, isOpen: false }))
+  }
+
+  function gerarRelatorioSelecionado() {
+    if (!selectedUser) {
+      return
+    }
+
+    try {
+      generateAdminHistoryPdf({
+        user: selectedUser,
+        presencas,
+        formatDate: (isoString) => formatDateTime(isoString),
+      })
+    } catch (err) {
+      console.error('Erro ao gerar relatório administrativo', err)
+    }
   }
 
   function handleAvatarKeyDown(event, callback) {
@@ -460,15 +477,25 @@ export default function AdminDashboard() {
                   ) : null}
                 </div>
               </div>
-              <button
-                className="history-modal__close"
-                onClick={fecharModal}
-                type="button"
-                aria-label="Fechar histórico"
-              >
-                <span aria-hidden="true">×</span>
-                <span className="sr-only">Fechar</span>
-              </button>
+              <div className="history-modal__actions">
+                <button
+                  type="button"
+                  className="btn-secondary history-modal__report"
+                  onClick={gerarRelatorioSelecionado}
+                  disabled={loadingPresencas || presencas.length === 0}
+                >
+                  Gerar relatório (PDF)
+                </button>
+                <button
+                  className="history-modal__close"
+                  onClick={fecharModal}
+                  type="button"
+                  aria-label="Fechar histórico"
+                >
+                  <span aria-hidden="true">×</span>
+                  <span className="sr-only">Fechar</span>
+                </button>
+              </div>
             </header>
 
             <section className="history-modal__summary summary-grid">

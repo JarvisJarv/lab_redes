@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/ToastProvider'
 import useVantaNet from '../hooks/useVantaNet'
-import { getProfilePhotoStorageKey, loadProfilePhoto } from '../utils/profilePhotoStorage'
+import { useProfilePhoto } from '../contexts/ProfilePhotoContext'
+import configIcon from '../assets/config.png'
 
 function gerarUUID() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
@@ -15,13 +16,24 @@ export default function Home() {
   const [did, setDid] = useState('')
   const [userName, setUserName] = useState('')
   const [matricula, setMatricula] = useState('')
-  const [profilePhoto, setProfilePhoto] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [codigo, setCodigo] = useState('')
   const [registrando, setRegistrando] = useState(false)
   const [presencasCount, setPresencasCount] = useState(0)
   const [ultimaPresenca, setUltimaPresenca] = useState(null)
   const vantaRef = useVantaNet()
+  const {
+    profilePhoto,
+    canEditPhoto,
+    triggerPhotoUpload,
+    handleRemoveProfilePhoto,
+    isPhotoSettingsOpen,
+    togglePhotoSettings,
+    closePhotoSettings,
+    photoSettingsMenuRef,
+    photoSettingsButtonRef,
+    profileInitials,
+  } = useProfilePhoto()
 
   function atualizarResumoComLista(lista, didFiltro) {
     if (!Array.isArray(lista) || lista.length === 0) {
@@ -84,39 +96,6 @@ export default function Home() {
     setMatricula(m)
     carregarPresencas(d)
   }, [])
-
-  useEffect(() => {
-    if (!did && !matricula) {
-      setProfilePhoto('')
-      return
-    }
-
-    const context = { isAdmin: false, did, matricula }
-    const foto = loadProfilePhoto(context)
-    setProfilePhoto(foto)
-  }, [did, matricula])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return undefined
-    }
-
-    const context = { isAdmin: false, did, matricula }
-    const key = getProfilePhotoStorageKey(context)
-
-    function handleProfilePhotoUpdate(event) {
-      if (!event?.detail || event.detail.key !== key) {
-        return
-      }
-      setProfilePhoto(event.detail.dataUrl || '')
-    }
-
-    window.addEventListener('profile-photo-updated', handleProfilePhotoUpdate)
-
-    return () => {
-      window.removeEventListener('profile-photo-updated', handleProfilePhotoUpdate)
-    }
-  }, [did, matricula])
 
   function abrirModal() {
     setCodigo('')
@@ -221,6 +200,10 @@ export default function Home() {
   const ultimoEvento = ultimaPresenca?.nomeEvento || ultimaPresenca?.eventoID || 'Sem nome definido'
 
   const participantInitials = useMemo(() => {
+    if (profileInitials) {
+      return profileInitials
+    }
+
     if (!userName) return 'P'
     return userName
       .trim()
@@ -229,12 +212,14 @@ export default function Home() {
       .slice(0, 2)
       .map((parte) => parte[0]?.toUpperCase())
       .join('')
-  }, [userName])
+  }, [profileInitials, userName])
 
-  const profilePhotoAlt = useMemo(
-    () => (userName ? `Foto do participante ${userName}` : 'Foto do participante autenticado'),
-    [userName]
-  )
+  const profilePhotoAlt = useMemo(() => {
+    if (profilePhoto) {
+      return userName ? `Foto do participante ${userName}` : 'Foto do participante autenticado'
+    }
+    return 'Representação ilustrativa do participante autenticado'
+  }, [profilePhoto, userName])
 
   return (
     <>
@@ -244,9 +229,9 @@ export default function Home() {
         <section className="glass-panel glass-panel--highlight p-6 sm:p-10">
           <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
             <div className="flex-1 space-y-4">
-              <span className="chip">Área do participante</span>
+              <span className="chip chip--hero">Área do participante</span>
               <div>
-                <h1 className="text-3xl font-semibold sm:text-4xl">Gerencie suas presenças digitais</h1>
+                <h1 className="section-title section-title--hero">Gerencie suas presenças digitais</h1>
                 <p className="section-subtitle max-w-xl">
                   Bem-vindo{userName ? `, ${userName}` : ''}! Acompanhe seus comprovantes, registre novos eventos e mantenha suas presenças sempre organizadas.
                 </p>
@@ -254,21 +239,83 @@ export default function Home() {
               <div className="participant-profile">
                 <div className="participant-profile__photo">
                   {profilePhoto ? (
-                    <img
-                      src={profilePhoto}
-                      alt={profilePhotoAlt}
-                    />
+                    <img src={profilePhoto} alt={profilePhotoAlt} />
                   ) : (
                     <span>{participantInitials}</span>
                   )}
                 </div>
-                <div className="participant-profile__details">
-                  <p className="participant-profile__name">{userName || 'Participante autenticado'}</p>
-                  {!profilePhoto ? (
-                    <p className="participant-profile__caption">
-                      Adicione uma foto pelo menu de configurações no topo para personalizar seu perfil.
+                <div className="participant-profile__body">
+                  <div className="participant-profile__header">
+                    <p className="participant-profile__name">{userName || 'Participante autenticado'}</p>
+                    {canEditPhoto ? (
+                      <div className="participant-profile__actions">
+                        <button
+                          type="button"
+                          className={`app-header__settings-toggle participant-profile__config-button ${
+                            isPhotoSettingsOpen ? 'is-open' : ''
+                          }`}
+                          onClick={() => {
+                            togglePhotoSettings()
+                          }}
+                          aria-haspopup="true"
+                          aria-expanded={isPhotoSettingsOpen}
+                          aria-controls="participant-photo-settings"
+                          ref={photoSettingsButtonRef}
+                        >
+                          <span className="sr-only">Abrir configurações da foto</span>
+                          <img
+                            src={configIcon}
+                            alt=""
+                            aria-hidden="true"
+                            className="app-header__settings-toggle-image"
+                          />
+                        </button>
+                        {isPhotoSettingsOpen ? (
+                          <div
+                            id="participant-photo-settings"
+                            className="app-header__settings-panel participant-profile__settings-panel"
+                            role="menu"
+                            ref={photoSettingsMenuRef}
+                          >
+                            <p className="app-header__settings-title">Foto do perfil</p>
+                            <button
+                              type="button"
+                              className="app-header__settings-action"
+                              onClick={() => {
+                                triggerPhotoUpload()
+                                closePhotoSettings()
+                              }}
+                              role="menuitem"
+                            >
+                              Alterar foto
+                            </button>
+                            {profilePhoto ? (
+                              <button
+                                type="button"
+                                className="app-header__settings-action app-header__settings-action--danger"
+                                onClick={() => {
+                                  handleRemoveProfilePhoto()
+                                  closePhotoSettings()
+                                }}
+                                role="menuitem"
+                              >
+                                Remover foto
+                              </button>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                  {profilePhoto ? (
+                    <p className="participant-profile__caption participant-profile__caption--success">
+                      Foto sincronizada neste dispositivo.
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="participant-profile__caption">
+                      Use o botão ao lado do seu nome para adicionar uma foto e personalizar o seu perfil.
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">
