@@ -193,12 +193,99 @@ a {
   gap: 0.85rem;
 }
 
-.app-header__logo {
+.app-header__profile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.app-header__avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 0.9rem;
+  border-radius: 999px;
+  overflow: hidden;
   background: radial-gradient(circle at 30% 30%, rgba(148, 163, 184, 0.18), transparent 65%);
+  border: 1px solid rgba(148, 163, 184, 0.35);
   box-shadow: 0 12px 22px -18px rgba(15, 23, 42, 0.9);
+  color: var(--brand-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.app-header__avatar:hover,
+.app-header__avatar:focus-visible {
+  border-color: rgba(148, 163, 184, 0.6);
+  box-shadow: 0 12px 28px -18px rgba(20, 184, 166, 0.45);
+}
+
+.app-header__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.app-header__avatar span[aria-hidden='true'] {
+  letter-spacing: 0.05em;
+}
+
+.app-header__avatar-indicator {
+  position: absolute;
+  inset: auto 0 -0.1rem 0;
+  text-align: center;
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(15, 23, 42, 0.82);
+  color: rgba(226, 232, 240, 0.9);
+  padding: 0.1rem 0.35rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.app-header__avatar:hover .app-header__avatar-indicator,
+.app-header__avatar:focus-visible .app-header__avatar-indicator {
+  opacity: 1;
+}
+
+.app-header__profile-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.app-header__avatar-hint,
+.app-header__avatar-remove {
+  font-size: 0.68rem;
+  color: rgba(226, 232, 240, 0.72);
+}
+
+.app-header__avatar-remove {
+  padding: 0.15rem 0.35rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: rgba(15, 23, 42, 0.4);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.app-header__avatar-remove:hover,
+.app-header__avatar-remove:focus-visible {
+  background: rgba(20, 184, 166, 0.16);
+  border-color: rgba(20, 184, 166, 0.45);
+  color: rgba(226, 232, 240, 0.95);
 }
 
 .app-header__title {
