@@ -140,6 +140,11 @@ export default function Login() {
     }
 
     const existing = localStorage.getItem('userDID')
+    const isAdmin = localStorage.getItem('isAdmin') === 'true'
+    if (isAdmin) {
+      navigate('/admin')
+      return
+    }
     if (existing) {
       navigate('/home')
     }
@@ -177,6 +182,7 @@ export default function Login() {
     }
     setLoading(true)
     try {
+      localStorage.removeItem('isAdmin')
       const did = gerarDID()
       const kp = await gerarParChaves()
       const publicKeyB64 = await exportPublicKeyBase64(kp.publicKey)
@@ -227,15 +233,28 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setMessage('')
-    // Verifica privateKey
+    const trimmedLoginName = loginNome.trim()
+    const enteredMat = (loginMatricula || '').toString().trim()
+
+    localStorage.removeItem('isAdmin')
+
+    if (trimmedLoginName.toLowerCase() === 'admin' && enteredMat.toLowerCase() === 'admin') {
+      localStorage.setItem('isAdmin', 'true')
+      localStorage.setItem('userName', 'admin')
+      localStorage.setItem('matricula', 'admin')
+      localStorage.removeItem('userDID')
+      setMessage('Acesso administrativo concedido. Redirecionando...')
+      setTimeout(() => navigate('/admin'), 600)
+      return
+    }
+
+    // Verifica privateKey para usuários padrão
     const pk = localStorage.getItem('privateKeyJwk')
     if (!pk) {
       setError('Identidade não encontrada neste dispositivo. Crie uma nova identidade.')
       return
     }
 
-    const trimmedLoginName = loginNome.trim()
-    const enteredMat = (loginMatricula || '').toString().trim()
     const storedMat = localStorage.getItem('matricula')
 
     // Caso o usuário tenha digitado a matrícula e ela coincida com a local -> permitir

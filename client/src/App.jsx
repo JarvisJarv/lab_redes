@@ -3,13 +3,22 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import Login from './pages/Login'
 import Home from './pages/Home'
 import Historico from './pages/Historico'
+import AdminDashboard from './pages/AdminDashboard'
 import Header from './components/Header'
 import Footer from './components/Footer'
 
 function Protected({ children }) {
   const userDID = localStorage.getItem('userDID')
   const userName = localStorage.getItem('userName')
+  const isAdmin = localStorage.getItem('isAdmin') === 'true'
+  if (isAdmin) return <Navigate to="/admin" replace />
   if (!userDID || !userName) return <Navigate to="/" replace />
+  return children
+}
+
+function AdminProtected({ children }) {
+  const isAdmin = localStorage.getItem('isAdmin') === 'true'
+  if (!isAdmin) return <Navigate to="/" replace />
   return children
 }
 
@@ -44,6 +53,16 @@ export default function App() {
         >
           <Route path="/home" element={<Home />} />
           <Route path="/historico" element={<Historico />} />
+        </Route>
+
+        <Route
+          element={
+            <AdminProtected>
+              <Layout />
+            </AdminProtected>
+          }
+        >
+          <Route path="/admin" element={<AdminDashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>

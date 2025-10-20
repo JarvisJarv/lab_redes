@@ -27,6 +27,17 @@ try {
   if (fs.existsSync(USERS_FILE)) {
     const rawu = fs.readFileSync(USERS_FILE, 'utf-8')
     users = JSON.parse(rawu)
+    let usersUpdated = false
+    users = users.map((u) => {
+      if (u && !u.createdAt) {
+        usersUpdated = true
+        return { ...u, createdAt: new Date().toISOString() }
+      }
+      return u
+    })
+    if (usersUpdated) {
+      salvarUsers()
+    }
   }
 } catch (err) {
   console.error('Erro ao carregar presencas do arquivo:', err)
@@ -60,7 +71,15 @@ app.post('/api/register', (req, res) => {
     return res.status(409).json({ error: 'Usuário já registrado' })
   }
 
-  const user = { id: gerarId(), userName, matricula, curso: curso || '', did, publicKey }
+  const user = {
+    id: gerarId(),
+    userName,
+    matricula,
+    curso: curso || '',
+    did,
+    publicKey,
+    createdAt: new Date().toISOString(),
+  }
   users.push(user)
   salvarUsers()
   return res.status(201).json(user)
@@ -77,7 +96,7 @@ app.get('/api/users', (req, res) => {
     const found = users.filter((u) => u.matricula === matricula)
     return res.json(found)
   }
-  return res.json(users)
+  return res.json(users.map((u) => ({ ...u, createdAt: u.createdAt || null })))
 })
 
 // POST /api/login
