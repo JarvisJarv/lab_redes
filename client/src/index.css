@@ -183,8 +183,20 @@ a {
   padding: 0 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1.25rem;
   height: 100%;
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.app-header__brand > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
 
 .app-header__title {
@@ -193,10 +205,102 @@ a {
   letter-spacing: 0.01em;
 }
 
+.app-header__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
 .app-header__nav {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-left: 0.75rem;
+}
+
+.app-header__profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-header__avatar-button {
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(15, 23, 42, 0.7));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.app-header__avatar-button:hover,
+.app-header__avatar-button:focus-visible {
+  border-color: rgba(20, 184, 166, 0.6);
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.18), rgba(15, 23, 42, 0.7));
+  box-shadow: 0 10px 25px -20px rgba(20, 184, 166, 0.8);
+}
+
+.app-header__avatar-button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.app-header__avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.app-header__avatar-placeholder {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.app-header__profile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.app-header__profile-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.app-header__profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.app-header__profile-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--brand-primary);
+  font-weight: 500;
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.app-header__profile-link:hover,
+.app-header__profile-link:focus-visible {
+  color: var(--text-primary);
+  text-decoration: underline;
 }
 
 .app-header__toggle {
@@ -260,11 +364,21 @@ a {
     gap: 1rem;
   }
 
+  .app-header__right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .app-header__profile {
+    gap: 0.5rem;
+  }
+
   .app-header__nav {
     position: absolute;
-    top: 5rem;
-    right: 1.5rem;
-    left: 1.5rem;
+    top: calc(100% + 0.75rem);
+    right: 0;
+    left: 0;
+    margin-left: 0;
     flex-direction: column;
     padding: 1rem;
     background: rgba(2, 6, 23, 0.88);
@@ -294,6 +408,12 @@ a {
 
   .app-header__toggle {
     display: inline-flex;
+  }
+}
+
+@media (max-width: 639px) {
+  .app-header__profile-meta {
+    display: none;
   }
 }
 
