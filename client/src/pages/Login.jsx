@@ -189,13 +189,6 @@ export default function Login() {
       const publicKeyB64 = await exportPublicKeyBase64(kp.publicKey)
       const privateJwk = await exportPrivateKeyJwk(kp.privateKey)
 
-      // Salva privateKey no localStorage (JWK). Em produção, usar IndexedDB e encriptação.
-      localStorage.setItem('privateKeyJwk', JSON.stringify(privateJwk))
-      localStorage.setItem('userDID', did)
-      localStorage.setItem('userName', registerNome.trim())
-      localStorage.setItem('matricula', registerMatricula.trim())
-      localStorage.setItem('curso', registerCurso)
-
       // Envia publicKey ao backend
       const res = await fetch('/api/register', {
         method: 'POST',
@@ -210,15 +203,21 @@ export default function Login() {
       })
       if (!res.ok) {
         if (res.status === 409) {
-          // Usuário já registrado no backend — não é fatal, prosseguimos com identidade local
-          setMessage('Usuário já registrado no backend. Identidade local salva com segurança.')
-        } else {
-          const txt = await res.text()
-          throw new Error(txt || 'Erro ao registrar usuário no backend')
+          setError('Usuário já registrado. Utilize a identidade existente para acessar.')
+          return
         }
-      } else {
-        setMessage('Identidade criada com sucesso e protegida neste dispositivo.')
+        const txt = await res.text()
+        throw new Error(txt || 'Erro ao registrar usuário no backend')
       }
+
+      // Salva privateKey no localStorage (JWK). Em produção, usar IndexedDB e encriptação.
+      localStorage.setItem('privateKeyJwk', JSON.stringify(privateJwk))
+      localStorage.setItem('userDID', did)
+      localStorage.setItem('userName', registerNome.trim())
+      localStorage.setItem('matricula', registerMatricula.trim())
+      localStorage.setItem('curso', registerCurso)
+
+      setMessage('Identidade criada com sucesso e protegida neste dispositivo.')
       setLoginNome(registerNome.trim())
       setLoginMatricula(registerMatricula.trim())
     } catch (err) {
