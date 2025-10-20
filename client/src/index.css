@@ -523,13 +523,13 @@ a {
 
 .event-group__marker {
   position: absolute;
-  left: -1.05rem;
-  top: 0.3rem;
-  width: 0.8rem;
-  height: 0.8rem;
-  border-radius: 999px;
-  background: radial-gradient(circle at center, rgba(20, 184, 166, 0.9), rgba(20, 184, 166, 0.2));
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+  left: -1.25rem;
+  top: 0.2rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 0.35rem;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.95), rgba(59, 130, 246, 0.35));
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.18);
 }
 
 .event-group__content {
@@ -990,6 +990,26 @@ tbody tr:last-child {
   max-height: 55vh;
   overflow-y: auto;
   padding-right: 0.25rem;
+}
+
+.history-modal__search {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.history-modal__search-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(148, 163, 184, 0.7);
+}
+
+.history-modal__search .input-with-icon {
+  position: relative;
+}
+
+.history-modal__search input {
+  background: rgba(15, 23, 42, 0.6);
 }
 
 .history-modal__body::-webkit-scrollbar {
