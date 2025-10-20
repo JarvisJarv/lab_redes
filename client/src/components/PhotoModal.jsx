@@ -43,7 +43,7 @@ export default function PhotoModal({ isOpen, src, alt, onClose }) {
           onClick={onClose}
           aria-label="Fechar visualização da foto"
         >
-          ×
+          <span className="photo-modal__close-icon" aria-hidden="true" />
         </button>
         {src ? (
           <img src={src} alt={alt || 'Foto de perfil ampliada'} className="photo-modal__image" />
