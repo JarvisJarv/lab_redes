@@ -207,6 +207,13 @@ a {
   flex-wrap: wrap;
 }
 
+.app-header__avatar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 .app-header__avatar {
   position: relative;
   display: inline-flex;
@@ -279,12 +286,6 @@ a {
   color: rgba(226, 232, 240, 0.72);
 }
 
-.app-header__avatar-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
 .app-header__avatar-button--add {
   padding: 0.32rem 0.75rem;
   font-weight: 600;
@@ -307,6 +308,108 @@ a {
   background: rgba(20, 184, 166, 0.22);
   border-color: rgba(20, 184, 166, 0.5);
   color: rgba(226, 232, 240, 0.98);
+}
+
+.app-header__settings-toggle {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: rgba(15, 23, 42, 0.4);
+  color: rgba(226, 232, 240, 0.88);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
+  position: relative;
+  box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.9);
+}
+
+.app-header__settings-toggle:hover,
+.app-header__settings-toggle:focus-visible,
+.app-header__settings-toggle.is-open {
+  background: rgba(20, 184, 166, 0.18);
+  border-color: rgba(20, 184, 166, 0.45);
+  color: rgba(226, 232, 240, 0.96);
+  box-shadow: 0 16px 28px -18px rgba(20, 184, 166, 0.6);
+}
+
+.app-header__settings-toggle-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.app-header__settings-panel {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  right: 0;
+  min-width: 12rem;
+  padding: 0.75rem;
+  border-radius: 0.85rem;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 26px 44px -28px rgba(15, 23, 42, 0.9);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  z-index: 45;
+}
+
+.app-header__settings-panel::before {
+  content: '';
+  position: absolute;
+  top: -0.4rem;
+  right: 1.4rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: inherit;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 1px solid rgba(148, 163, 184, 0.22);
+  transform: rotate(45deg);
+}
+
+.app-header__settings-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.85);
+  margin: 0 0 0.2rem;
+}
+
+.app-header__settings-action {
+  font-size: 0.75rem;
+  text-align: left;
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.65rem;
+  border: 1px solid transparent;
+  background: rgba(30, 41, 59, 0.6);
+  color: rgba(226, 232, 240, 0.95);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.app-header__settings-action:hover,
+.app-header__settings-action:focus-visible {
+  background: rgba(20, 184, 166, 0.2);
+  border-color: rgba(20, 184, 166, 0.4);
+  color: rgba(15, 23, 42, 0.95);
+  transform: translateY(-1px);
+}
+
+.app-header__settings-action--danger {
+  background: rgba(248, 113, 113, 0.12);
+  color: rgba(254, 226, 226, 0.92);
+}
+
+.app-header__settings-action--danger:hover,
+.app-header__settings-action--danger:focus-visible {
+  background: rgba(248, 113, 113, 0.22);
+  border-color: rgba(248, 113, 113, 0.45);
+  color: rgba(15, 23, 42, 0.95);
 }
 
 .app-header__avatar-remove {
