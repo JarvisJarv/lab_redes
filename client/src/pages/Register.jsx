@@ -111,14 +111,10 @@ export default function Register() {
       setRegisterCurso(storedCurso)
     }
 
-    const existing = localStorage.getItem('userDID')
     const isAdmin = localStorage.getItem('isAdmin') === 'true'
     if (isAdmin) {
       navigate('/admin')
       return
-    }
-    if (existing) {
-      navigate('/home')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -155,8 +151,6 @@ export default function Register() {
       localStorage.removeItem('isAdmin')
       const previousDid = localStorage.getItem('userDID') || ''
       const previousMatricula = localStorage.getItem('matricula') || ''
-      const previousPrivateKey = localStorage.getItem('privateKeyJwk') || ''
-
       const did = gerarDID()
       const kp = await gerarParChaves()
       const publicKeyB64 = await exportPublicKeyBase64(kp.publicKey)
@@ -186,7 +180,6 @@ export default function Register() {
         upsertIdentityInVault({
           did: previousDid,
           matricula: previousMatricula,
-          privateKeyJwk: previousPrivateKey,
           status: 'revoked',
         })
       }

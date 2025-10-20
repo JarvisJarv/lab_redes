@@ -126,14 +126,10 @@ export default function Login() {
       setLoginMatricula(storedMatricula)
     }
 
-    const existing = localStorage.getItem('userDID')
     const isAdmin = localStorage.getItem('isAdmin') === 'true'
     if (isAdmin) {
       navigate('/admin')
       return
-    }
-    if (existing) {
-      navigate('/home')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

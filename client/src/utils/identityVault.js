@@ -4,11 +4,17 @@ function sanitizeEntry(entry) {
   if (!entry || typeof entry !== 'object') return null
   const did = typeof entry.did === 'string' ? entry.did : ''
   if (!did) return null
+  const status = entry.status === 'revoked' ? 'revoked' : 'active'
   return {
     did,
     matricula: typeof entry.matricula === 'string' ? entry.matricula : '',
-    privateKeyJwk: typeof entry.privateKeyJwk === 'string' ? entry.privateKeyJwk : '',
-    status: entry.status === 'revoked' ? 'revoked' : 'active',
+    privateKeyJwk:
+      status === 'revoked'
+        ? ''
+        : typeof entry.privateKeyJwk === 'string'
+        ? entry.privateKeyJwk
+        : '',
+    status,
     createdAt: typeof entry.createdAt === 'string' ? entry.createdAt : null,
     updatedAt: typeof entry.updatedAt === 'string' ? entry.updatedAt : null,
     revokedAt: typeof entry.revokedAt === 'string' ? entry.revokedAt : null,
@@ -42,6 +48,7 @@ export function upsertIdentityInVault({ did, matricula = '', privateKeyJwk = '',
   if (!did) return
   const vault = loadIdentityVault()
   const now = new Date().toISOString()
+  const isRevoked = status === 'revoked'
   let found = false
   const nextVault = vault.map((entry) => {
     if (entry.did !== did) return entry
@@ -49,21 +56,21 @@ export function upsertIdentityInVault({ did, matricula = '', privateKeyJwk = '',
     return {
       ...entry,
       matricula: matricula || entry.matricula || '',
-      privateKeyJwk: privateKeyJwk || entry.privateKeyJwk || '',
-      status: status === 'revoked' ? 'revoked' : 'active',
+      privateKeyJwk: isRevoked ? '' : privateKeyJwk || entry.privateKeyJwk || '',
+      status: isRevoked ? 'revoked' : 'active',
       updatedAt: now,
-      revokedAt: status === 'revoked' ? entry.revokedAt || now : null,
+      revokedAt: isRevoked ? entry.revokedAt || now : null,
     }
   })
   if (!found) {
     nextVault.push({
       did,
       matricula: matricula || '',
-      privateKeyJwk: privateKeyJwk || '',
-      status: status === 'revoked' ? 'revoked' : 'active',
+      privateKeyJwk: isRevoked ? '' : privateKeyJwk || '',
+      status: isRevoked ? 'revoked' : 'active',
       createdAt: now,
       updatedAt: now,
-      revokedAt: status === 'revoked' ? now : null,
+      revokedAt: isRevoked ? now : null,
     })
   }
   persistIdentityVault(nextVault)
@@ -93,16 +100,24 @@ export function setActiveIdentity({ did, matricula = '', privateKeyJwk = '' }) {
       }
     }
 
-    if (entry.status !== 'revoked') {
+    if (entry.status === 'revoked' && (!entry.privateKeyJwk || entry.privateKeyJwk === '')) {
+      if (entry.revokedAt) {
+        return entry
+      }
       return {
         ...entry,
-        status: 'revoked',
         revokedAt: entry.revokedAt || now,
-        updatedAt: now,
+        updatedAt: entry.updatedAt || now,
       }
     }
 
-    return entry
+    return {
+      ...entry,
+      status: 'revoked',
+      privateKeyJwk: '',
+      revokedAt: entry.revokedAt || now,
+      updatedAt: now,
+    }
   })
 
   if (!found) {
