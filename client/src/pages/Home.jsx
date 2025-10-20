@@ -94,10 +94,12 @@ export default function Home() {
     [profileStorageContext],
   )
   const profileKeyRef = useRef(profileStorageKey)
+  const profileContextRef = useRef(profileStorageContext)
 
   useEffect(() => {
     profileKeyRef.current = profileStorageKey
-  }, [profileStorageKey])
+    profileContextRef.current = profileStorageContext
+  }, [profileStorageKey, profileStorageContext])
 
   useEffect(() => {
     if (!did && !matricula) {
@@ -107,7 +109,7 @@ export default function Home() {
 
     const foto = loadProfilePhoto(profileStorageContext)
     setProfilePhoto(foto)
-  }, [did, matricula, profileStorageContext])
+  }, [did, matricula, profileStorageContext, profileStorageKey])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -120,7 +122,10 @@ export default function Home() {
         return
       }
 
-      const nextPhoto = typeof event.detail.dataUrl === 'string' ? event.detail.dataUrl : ''
+      const nextPhoto =
+        typeof event.detail?.dataUrl === 'string'
+          ? event.detail.dataUrl
+          : loadProfilePhoto(profileContextRef.current)
       setProfilePhoto(nextPhoto)
     }
 
@@ -128,6 +133,28 @@ export default function Home() {
 
     return () => {
       window.removeEventListener('profile-photo-updated', handleProfilePhotoUpdate)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined
+    }
+
+    function handleStorage(event) {
+      if (!event) return
+      if (event.key !== profileKeyRef.current) {
+        return
+      }
+
+      const nextPhoto = typeof event.newValue === 'string' ? event.newValue : ''
+      setProfilePhoto(nextPhoto)
+    }
+
+    window.addEventListener('storage', handleStorage)
+
+    return () => {
+      window.removeEventListener('storage', handleStorage)
     }
   }, [])
 
@@ -257,7 +284,7 @@ export default function Home() {
         <section className="glass-panel glass-panel--highlight p-6 sm:p-10">
           <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
             <div className="flex-1 space-y-4">
-              <span className="chip">Área do participante</span>
+              <span className="chip participant-area-chip">Área do participante</span>
               <div>
                 <h1 className="text-3xl font-semibold sm:text-4xl">Gerencie suas presenças digitais</h1>
                 <p className="section-subtitle max-w-xl">
