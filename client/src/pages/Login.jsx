@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import labLogo from '../assets/lab-logo.png'
 import { removeProfilePhoto, saveProfilePhoto } from '../utils/profilePhotoStorage'
+import { getIdentityFromVault, loadIdentityVault, setActiveIdentity } from '../utils/identityVault'
 
 // Helper: export ArrayBuffer para base64
 function abToBase64(buffer) {
@@ -208,6 +209,14 @@ export default function Login() {
     }
 
     if (enteredMat && storedMat && enteredMat === storedMat) {
+      const didForStoredMat = localStorage.getItem('userDID') || ''
+      if (didForStoredMat) {
+        setActiveIdentity({
+          did: didForStoredMat,
+          matricula: storedMat,
+          privateKeyJwk: pk,
+        })
+      }
       persistLoginName()
       await ensureProfile(enteredMat)
       setMessage('Autenticado — redirecionando...')
@@ -230,11 +239,42 @@ export default function Login() {
         }
         const user = arr[0]
         const localDid = localStorage.getItem('userDID')
+        const attemptedDid = user.did || ''
+        const activeDid = localDid || ''
+        const vaultEntry = attemptedDid ? getIdentityFromVault(attemptedDid) : null
+        const vaultEntries = attemptedDid ? loadIdentityVault() : []
+        const currentActive = vaultEntries.find((entry) => entry.status === 'active') || null
+
+        if (vaultEntry && vaultEntry.status === 'revoked') {
+          setError(
+            'Esta identidade foi revogada para este dispositivo e não pode mais ser acessada. Utilize a identidade ativa ou gere uma nova.'
+          )
+          return
+        }
+
+        if (attemptedDid && activeDid && attemptedDid !== activeDid) {
+          const message = vaultEntries.some((entry) => entry.did === activeDid)
+            ? 'Este dispositivo está associado a outra identidade e não pode autenticar a identidade informada.'
+            : 'Não é possível autenticar esta identidade neste dispositivo. Gere uma nova identidade aqui para continuar.'
+          setError(message)
+          return
+        }
+
+        if (attemptedDid && currentActive && currentActive.did !== attemptedDid) {
+          setError('Esta identidade não está liberada para uso neste dispositivo. Utilize a identidade ativa ou gere uma nova.')
+          return
+        }
+
         // Se o DID do backend corresponder ao DID local, permitir
         if (localDid && user.did === localDid) {
           // restaura nome/matricula se necessário
           if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
           if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
+          setActiveIdentity({
+            did: user.did || '',
+            matricula: user.matricula || '',
+            privateKeyJwk: pk,
+          })
           persistLoginName()
           await ensureProfile(enteredMat)
           setMessage('Autenticado — redirecionando...')
@@ -265,6 +305,11 @@ export default function Login() {
             if (!localStorage.getItem('userName')) localStorage.setItem('userName', user.userName || '')
             if (!localStorage.getItem('userDID')) localStorage.setItem('userDID', user.did || '')
             if (!localStorage.getItem('matricula')) localStorage.setItem('matricula', user.matricula || '')
+            setActiveIdentity({
+              did: user.did || '',
+              matricula: user.matricula || '',
+              privateKeyJwk: localPrivateJwk,
+            })
             persistLoginName()
             await ensureProfile(enteredMat)
             setMessage('Autenticado — redirecionando...')
@@ -287,6 +332,11 @@ export default function Login() {
     // Nenhuma matrícula digitada: se tiver DID local, permitir; caso contrário, bloquear
     const localDid = localStorage.getItem('userDID')
     if (localDid) {
+      setActiveIdentity({
+        did: localDid,
+        matricula: localStorage.getItem('matricula') || '',
+        privateKeyJwk: pk,
+      })
       persistLoginName()
       setMessage('Autenticado — redirecionando...')
       setTimeout(() => navigate('/home'), 600)
