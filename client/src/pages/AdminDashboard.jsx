@@ -29,6 +29,7 @@ export default function AdminDashboard() {
   const [loadingPresencas, setLoadingPresencas] = useState(false)
   const [presencasError, setPresencasError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [eventSearchTerm, setEventSearchTerm] = useState('')
 
   useEffect(() => {
     async function carregarUsuarios() {
@@ -67,6 +68,7 @@ export default function AdminDashboard() {
     setSelectedUser(user)
     setPresencas([])
     setPresencasError('')
+    setEventSearchTerm('')
     if (!user?.did) {
       setPresencasError('Usuário não possui DID cadastrado.')
       return
@@ -100,6 +102,7 @@ export default function AdminDashboard() {
     setPresencas([])
     setPresencasError('')
     setLoadingPresencas(false)
+    setEventSearchTerm('')
   }
 
   const totalUsuariosComDid = useMemo(() => users.filter((u) => Boolean(u.did)).length, [users])
@@ -158,6 +161,28 @@ export default function AdminDashboard() {
         return dataB - dataA
       })
   }, [presencas])
+
+  const presencasFiltradas = useMemo(() => {
+    if (!eventSearchTerm.trim()) {
+      return presencasAgrupadas
+    }
+
+    const normalized = eventSearchTerm.trim().toLowerCase()
+
+    return presencasAgrupadas.filter((grupo) => {
+      const nome = (grupo.nomeEvento || '').toLowerCase()
+      const id = (grupo.eventoID || '').toLowerCase()
+
+      if (nome.includes(normalized) || id.includes(normalized)) {
+        return true
+      }
+
+      return grupo.registros.some((registro) => {
+        const registroEvento = (registro.nomeEvento || registro.eventoID || '').toLowerCase()
+        return registroEvento.includes(normalized)
+      })
+    })
+  }, [presencasAgrupadas, eventSearchTerm])
 
   const primeiraPresenca = presencas.length > 0 ? presencas[presencas.length - 1] : null
   const ultimaPresenca = presencas.length > 0 ? presencas[0] : null
@@ -365,39 +390,69 @@ export default function AdminDashboard() {
                   Nenhuma presença encontrada para este usuário.
                 </div>
               ) : (
-                <div className="admin-events history-modal__events">
-                  {presencasAgrupadas.map((grupo) => (
-                    <section className="event-group" key={grupo.eventoID || grupo.nomeEvento}>
-                      <header className="event-group__header">
-                        <div>
-                          <h3>{grupo.nomeEvento}</h3>
-                          <p>
-                            {grupo.registros.length} presença{grupo.registros.length > 1 ? 's' : ''} • Última em{' '}
-                            {grupo.registros[0]?.dataHora ? formatDateTime(grupo.registros[0].dataHora) : '—'}
-                          </p>
-                        </div>
-                      </header>
+                <>
+                  <div className="history-modal__search">
+                    <label className="history-modal__search-label" htmlFor="history-event-search">
+                      Pesquise eventos pelo nome
+                    </label>
+                    <div className="input-with-icon">
+                      <span className="input-with-icon__icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                          <circle cx="11" cy="11" r="7" />
+                          <line x1="16.65" y1="16.65" x2="21" y2="21" />
+                        </svg>
+                      </span>
+                      <input
+                        id="history-event-search"
+                        type="search"
+                        placeholder="Digite o nome do evento"
+                        value={eventSearchTerm}
+                        onChange={(event) => setEventSearchTerm(event.target.value)}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
 
-                      <ol className="event-group__list">
-                        {grupo.registros.map((presenca) => (
-                          <li
-                            className="event-group__item"
-                            key={presenca.id || presenca.hash || `${presenca.eventoID}-${presenca.dataHora}`}
-                          >
-                            <div className="event-group__marker" aria-hidden="true" />
-                            <div className="event-group__content">
-                              <span className="event-group__title">{grupo.nomeEvento}</span>
-                              <span className="event-group__meta">{formatDateTime(presenca.dataHora)}</span>
-                              <span className="event-group__hash" title={presenca.hash || 'Hash não informado'}>
-                                {presenca.hash || 'Hash não informado'}
-                              </span>
+                  {presencasFiltradas.length === 0 ? (
+                    <div className="history-modal__status history-modal__status--empty">
+                      Nenhum evento encontrado para “{eventSearchTerm}”.
+                    </div>
+                  ) : (
+                    <div className="admin-events history-modal__events">
+                      {presencasFiltradas.map((grupo) => (
+                        <section className="event-group" key={grupo.eventoID || grupo.nomeEvento}>
+                          <header className="event-group__header">
+                            <div>
+                              <h3>{grupo.nomeEvento}</h3>
+                              <p>
+                                {grupo.registros.length} presença{grupo.registros.length > 1 ? 's' : ''} • Última em{' '}
+                                {grupo.registros[0]?.dataHora ? formatDateTime(grupo.registros[0].dataHora) : '—'}
+                              </p>
                             </div>
-                          </li>
-                        ))}
-                      </ol>
-                    </section>
-                  ))}
-                </div>
+                          </header>
+
+                          <ol className="event-group__list">
+                            {grupo.registros.map((presenca) => (
+                              <li
+                                className="event-group__item"
+                                key={presenca.id || presenca.hash || `${presenca.eventoID}-${presenca.dataHora}`}
+                              >
+                                <div className="event-group__marker" aria-hidden="true" />
+                                <div className="event-group__content">
+                                  <span className="event-group__title">{grupo.nomeEvento}</span>
+                                  <span className="event-group__meta">{formatDateTime(presenca.dataHora)}</span>
+                                  <span className="event-group__hash" title={presenca.hash || 'Hash não informado'}>
+                                    {presenca.hash || 'Hash não informado'}
+                                  </span>
+                                </div>
+                              </li>
+                            ))}
+                          </ol>
+                        </section>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
