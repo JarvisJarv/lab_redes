@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import logo from '../assets/logo.svg'
+
 // Helper: export ArrayBuffer para base64
 function abToBase64(buffer) {
   const bytes = new Uint8Array(buffer)
@@ -389,18 +391,32 @@ export default function Login() {
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-4 py-16 sm:px-6 lg:px-10">
-        <div className="mb-10 text-center lg:text-left">
-          <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
-            Self-sovereign identity
-          </span>
-          <h1 className="mt-6 text-3xl font-semibold sm:text-4xl lg:text-5xl">
-            Entre com segurança e crie sua identidade digital acadêmica
-          </h1>
-          <p className="mt-4 max-w-2xl text-base text-slate-200 sm:text-lg">
-            Gere um par de chaves criptográficas, mantenha a privacidade dos seus dados e
-            tenha acesso rápido às funcionalidades do laboratório de redes. Tudo em uma
-            interface moderna, clara e responsiva.
-          </p>
+        <div className="mb-10 flex flex-col items-center gap-8 text-center lg:flex-row lg:items-center lg:text-left">
+          <div className="flex flex-col items-center gap-3">
+            <div className="rounded-3xl bg-gradient-to-br from-cyan-500/30 via-sky-500/30 to-transparent p-4 shadow-[0_0_45px_rgba(34,211,238,0.35)]">
+              <img
+                src={logo}
+                alt="Logotipo do Sistema de Presenças"
+                className="h-24 w-24 sm:h-28 sm:w-28"
+              />
+            </div>
+            <span className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-200/80">
+              Identidade confiável
+            </span>
+          </div>
+          <div>
+            <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
+              Self-sovereign identity
+            </span>
+            <h1 className="mt-6 text-3xl font-semibold sm:text-4xl lg:text-5xl">
+              Entre com segurança e crie sua identidade digital acadêmica
+            </h1>
+            <p className="mt-4 max-w-2xl text-base text-slate-200 sm:text-lg">
+              Gere um par de chaves criptográficas, mantenha a privacidade dos seus dados e
+              tenha acesso rápido às funcionalidades do laboratório de redes. Tudo em uma
+              interface moderna, clara e responsiva.
+            </p>
+          </div>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1.1fr_minmax(0,1fr)]">

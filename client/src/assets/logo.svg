@@ -1,37 +1,63 @@
-<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Sistema de Presenças - Logo</title>
-  <desc id="desc">Hexágono com um degradê azul e um ícone de chave no centro</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">Sistema de Presenças - Logo</title>
+  <desc id="logoDesc">Hexágono moderno com chave estilizada e brilho ciano</desc>
   <defs>
-    <radialGradient id="glow" cx="50%" cy="50%" r="60%">
-      <stop offset="0%" stop-color="#67e8f9" stop-opacity="0.9" />
-      <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.75" />
-      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.8" />
+    <radialGradient id="bgGradient" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="60%" stop-color="#020617" />
+      <stop offset="100%" stop-color="#00010a" />
     </radialGradient>
-    <linearGradient id="keyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f8fafc" stop-opacity="0.95" />
-      <stop offset="100%" stop-color="#bae6fd" stop-opacity="0.95" />
+    <linearGradient id="hexGradient" x1="30%" y1="15%" x2="80%" y2="90%">
+      <stop offset="0%" stop-color="#5ee7ff" />
+      <stop offset="40%" stop-color="#3cc8ff" />
+      <stop offset="100%" stop-color="#1d9dff" />
     </linearGradient>
-    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.35" />
+    <linearGradient id="innerHexGradient" x1="30%" y1="20%" x2="70%" y2="85%">
+      <stop offset="0%" stop-color="#0b1f3a" />
+      <stop offset="100%" stop-color="#13294a" />
+    </linearGradient>
+    <linearGradient id="keyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fbff" />
+      <stop offset="100%" stop-color="#c8f1ff" />
+    </linearGradient>
+    <filter id="softGlow" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="blur" />
+      </feMerge>
     </filter>
   </defs>
-  <rect x="0" y="0" width="256" height="256" fill="#020617" />
-  <g filter="url(#softShadow)">
+
+  <rect width="256" height="256" fill="url(#bgGradient)" />
+
+  <g filter="url(#softGlow)">
     <path
-      d="M128 22l85.5 49.4v98.8L128 220l-85.5-49.4V71.4L128 22z"
-      fill="url(#glow)"
-    />
-    <path
-      d="M128 41.6l-70 40.5v81.8l70 40.5 70-40.5V82.1L128 41.6z"
-      fill="rgba(15, 23, 42, 0.35)"
-      stroke="rgba(148, 163, 184, 0.25)"
-      stroke-width="3"
+      d="M128 26l92 53v98l-92 53-92-53V79l92-53z"
+      fill="#3ed0ff"
+      opacity="0.35"
     />
   </g>
-  <g transform="translate(96 72)">
+
+  <path
+    d="M128 38l78 45v90l-78 45-78-45V83l78-45z"
+    fill="url(#hexGradient)"
+    stroke="#9becff"
+    stroke-width="3"
+  />
+  <path
+    d="M128 56l62 36v72l-62 36-62-36V92l62-36z"
+    fill="url(#innerHexGradient)"
+    stroke="#1f4c7f"
+    stroke-width="2"
+  />
+
+  <g transform="translate(88 72)">
     <path
-      d="M64.5 32.5c0-17.1-13.4-31-30.5-31S3.5 15.4 3.5 32.5c0 13.6 8.7 25.3 20.8 29.3v15.7a6 6 0 006 6h10.2a6 6 0 006-6V57l4.8-.1 4.8 4.8a4.5 4.5 0 006.4-6.4l-4.9-4.9a10 10 0 00-7.1-2.9h-10v-5.1c11.9-2.6 20-13 20-24.9zm-30.5 20c-11.1 0-20-9-20-20s8.9-20 20-20 20 9 20 20-9 20-20 20z"
+      d="M81 51.5C81 30.7 63.9 14 43.3 14 22.7 14 5.5 30.7 5.5 51.5c0 18.4 12.5 34.5 29.6 38.9V118c0 4.4 3.6 8 8 8H61c4.4 0 8-3.6 8-8V90.4h10.7c6 0 10.8 4.8 10.8 10.8V114c0 3 2.4 5.4 5.4 5.4s5.4-2.4 5.4-5.4V101c0-11.9-9.6-21.5-21.5-21.5H69V90l-3.8.1-5.2-5.2c12.3-5.1 21-17.3 21-33.4zM43.3 75c-12.8 0-23.5-10.7-23.5-23.5S30.5 28 43.3 28 66.8 38.7 66.8 51.5 56.1 75 43.3 75z"
       fill="url(#keyGradient)"
     />
+    <circle cx="43.3" cy="51.5" r="15.5" fill="#4ad7ff" opacity="0.85" />
+    <circle cx="43.3" cy="51.5" r="7" fill="#e8f9ff" opacity="0.9" />
   </g>
 </svg>
