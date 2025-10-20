@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import labLogo from '../assets/lab-logo.png'
 import { removeProfilePhoto, saveProfilePhoto } from '../utils/profilePhotoStorage'
 
@@ -35,24 +35,14 @@ async function publicSpkiBase64FromPrivateJwkString(privateJwkString) {
   }
 }
 
-// Helper: gera DID simples
-function gerarDID() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) return 'did:simulado:' + crypto.randomUUID()
-  return 'did:simulado:' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36)
-}
-
 // Observação: para produção, armazene privateKey em IndexedDB e, se possível, encriptado com senha.
 // Aqui usamos localStorage para simplicidade do protótipo.
 
 export default function Login() {
   const vantaRef = useRef(null)
-  const [registerNome, setRegisterNome] = useState('')
-  const [registerMatricula, setRegisterMatricula] = useState('')
-  const [registerCurso, setRegisterCurso] = useState('Sistemas de Informação')
   const [loginNome, setLoginNome] = useState('')
   const [loginMatricula, setLoginMatricula] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const navigate = useNavigate()
 
@@ -128,18 +118,11 @@ export default function Login() {
   useEffect(() => {
     const storedName = localStorage.getItem('userName') || ''
     const storedMatricula = localStorage.getItem('matricula') || ''
-    const storedCurso = localStorage.getItem('curso') || ''
-
     if (storedName) {
-      setRegisterNome(storedName)
       setLoginNome(storedName)
     }
     if (storedMatricula) {
-      setRegisterMatricula(storedMatricula)
       setLoginMatricula(storedMatricula)
-    }
-    if (storedCurso) {
-      setRegisterCurso(storedCurso)
     }
 
     const existing = localStorage.getItem('userDID')
@@ -153,82 +136,6 @@ export default function Login() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  async function gerarParChaves() {
-    // ECDSA P-256
-    const keyPair = await window.crypto.subtle.generateKey(
-      { name: 'ECDSA', namedCurve: 'P-256' },
-      true,
-      ['sign', 'verify']
-    )
-    return keyPair
-  }
-
-  async function exportPublicKeyBase64(publicKey) {
-    const spki = await window.crypto.subtle.exportKey('spki', publicKey)
-    return abToBase64(spki)
-  }
-
-  async function exportPrivateKeyJwk(privateKey) {
-    // Export as JWK for storage (not ideal but simple here)
-    const jwk = await window.crypto.subtle.exportKey('jwk', privateKey)
-    return jwk
-  }
-
-  async function handleCreateIdentity(e) {
-    e.preventDefault()
-    setError('')
-    setMessage('')
-    if (!registerNome.trim() || !registerMatricula.trim()) {
-      setError('Nome e Matrícula são obrigatórios')
-      return
-    }
-    setLoading(true)
-    try {
-      localStorage.removeItem('isAdmin')
-      const did = gerarDID()
-      const kp = await gerarParChaves()
-      const publicKeyB64 = await exportPublicKeyBase64(kp.publicKey)
-      const privateJwk = await exportPrivateKeyJwk(kp.privateKey)
-
-      // Envia publicKey ao backend
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userName: registerNome.trim(),
-          matricula: registerMatricula.trim(),
-          curso: registerCurso,
-          did,
-          publicKey: publicKeyB64,
-        }),
-      })
-      if (!res.ok) {
-        if (res.status === 409) {
-          setError('Usuário já registrado. Utilize a identidade existente para acessar.')
-          return
-        }
-        const txt = await res.text()
-        throw new Error(txt || 'Erro ao registrar usuário no backend')
-      }
-
-      // Salva privateKey no localStorage (JWK). Em produção, usar IndexedDB e encriptação.
-      localStorage.setItem('privateKeyJwk', JSON.stringify(privateJwk))
-      localStorage.setItem('userDID', did)
-      localStorage.setItem('userName', registerNome.trim())
-      localStorage.setItem('matricula', registerMatricula.trim())
-      localStorage.setItem('curso', registerCurso)
-
-      setMessage('Identidade criada com sucesso e protegida neste dispositivo.')
-      setLoginNome(registerNome.trim())
-      setLoginMatricula(registerMatricula.trim())
-    } catch (err) {
-      console.error(err)
-      setError('Erro ao criar identidade: ' + (err.message || ''))
-    } finally {
-      setLoading(false)
-    }
-  }
 
   async function handleLogin(e) {
     e.preventDefault()
@@ -391,7 +298,6 @@ export default function Login() {
 
   const inputClassName =
     'w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-300 transition focus:border-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-300/60'
-  const subtleTextClass = 'text-sm text-slate-300'
   const primaryButtonClass =
     'inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 px-4 py-3 font-semibold text-slate-900 shadow-lg shadow-cyan-500/20 transition hover:scale-[1.01] hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-60'
   return (
@@ -425,117 +331,68 @@ export default function Login() {
             </div>
 
             <div className="flex flex-col gap-6 lg:gap-8">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl sm:p-8">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">Criar Identidade</h2>
-                    <p className="mt-1 text-sm text-slate-200">
-                      Use seu nome, matrícula e curso para gerar um DID exclusivo.
-                    </p>
-                  </div>
-                  <div className="hidden rounded-full bg-gradient-to-br from-cyan-400/40 to-blue-500/40 p-3 text-cyan-100 sm:block">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
-                      <path d="M12 1.75a.75.75 0 0 1 .707.498l2.076 5.926 6.243.269a.75.75 0 0 1 .431 1.348l-4.88 3.763 1.7 6.091a.75.75 0 0 1-1.142.828L12 16.93l-5.135 3.545a.75.75 0 0 1-1.142-.828l1.7-6.091-4.88-3.763a.75.75 0 0 1 .431-1.348l6.244-.269 2.075-5.926A.75.75 0 0 1 12 1.75Z" />
-                    </svg>
-                  </div>
-                </div>
+              <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl sm:p-8">
+                <h2 className="text-xl font-semibold text-white">Login rápido</h2>
+                <p className="mt-1 text-sm text-slate-200">Autentique-se com seu Nome e matrícula.</p>
 
-                <form onSubmit={handleCreateIdentity} className="mt-6 space-y-5">
+                <form onSubmit={handleLogin} className="mt-6 space-y-5">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-100">Nome completo</label>
+                    <label className="text-sm font-medium text-slate-100">
+                      Nome <span className="text-red-300">*</span>
+                    </label>
                     <input
-                      value={registerNome}
-                      onChange={(e) => setRegisterNome(e.target.value)}
+                      value={loginNome}
+                      onChange={(e) => setLoginNome(e.target.value)}
                       className={inputClassName}
-                      placeholder="Ex: Maria Silva"
+                      placeholder="Insira seu nome"
                     />
                   </div>
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-100">Matrícula</label>
-                      <input
-                        value={registerMatricula}
-                        onChange={(e) => setRegisterMatricula(e.target.value)}
-                        className={inputClassName}
-                        placeholder="Ex: 2025001"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-100">Curso</label>
-                      <input
-                        value={registerCurso}
-                        onChange={(e) => setRegisterCurso(e.target.value)}
-                        className={inputClassName}
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-100">
+                      Matrícula <span className="text-red-300">*</span>
+                    </label>
+                    <input
+                      value={loginMatricula}
+                      onChange={(e) => setLoginMatricula(e.target.value)}
+                      className={`${inputClassName} ${!loginMatricula.trim() ? 'ring-1 ring-red-400/80' : ''}`}
+                      placeholder="Informe sua matrícula"
+                    />
+                    {!loginMatricula.trim() && (
+                      <span className="text-xs text-red-200">A matrícula é obrigatória para realizar o login.</span>
+                    )}
                   </div>
-                  <p className={subtleTextClass}>
-                    Ao continuar, geraremos um par de chaves ECDSA (P-256) localmente e armazenaremos sua chave privada neste dispositivo.
-                  </p>
-                  <button type="submit" className={primaryButtonClass} disabled={loading}>
-                    {loading ? 'Criando identidade…' : 'Gerar identidade segura'}
+                  <button type="submit" className={primaryButtonClass} disabled={!loginMatricula.trim() || !loginNome.trim()}>
+                    Entrar agora
                   </button>
                 </form>
+
+                <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-100">
+                  <p className="text-slate-200">Ainda não tem sua identidade acadêmica?</p>
+                  <Link
+                    to="/register"
+                    className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400/90 via-sky-400/90 to-blue-500/90 px-4 py-2 font-semibold text-slate-900 transition hover:scale-[1.01] hover:shadow-lg"
+                  >
+                    Criar identidade
+                  </Link>
+                </div>
               </div>
 
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-6 backdrop-blur-xl sm:p-8">
-                  <h2 className="text-xl font-semibold text-white">Login rápido</h2>
-                  <p className="mt-1 text-sm text-slate-200">Autentique-se com seu Nome e matrícula.</p>
-
-                  <form onSubmit={handleLogin} className="mt-6 space-y-5">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-100">
-                        Nome <span className="text-red-300">*</span>
-                      </label>
-                      <input
-                        value={loginNome}
-                        onChange={(e) => setLoginNome(e.target.value)}
-                        className={inputClassName}
-                        placeholder="Insira seu nome"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-100">
-                        Matrícula <span className="text-red-300">*</span>
-                      </label>
-                      <input
-                        value={loginMatricula}
-                        onChange={(e) => setLoginMatricula(e.target.value)}
-                        className={`${inputClassName} ${!loginMatricula.trim() ? 'ring-1 ring-red-400/80' : ''}`}
-                        placeholder="Informe sua matrícula"
-                      />
-                      {!loginMatricula.trim() && (
-                        <span className="text-xs text-red-200">A matrícula é obrigatória para realizar o login.</span>
-                      )}
-                    </div>
-                    <button
-                      type="submit"
-                      className={primaryButtonClass}
-                      disabled={!loginMatricula.trim() || !loginNome.trim()}
-                    >
-                      Entrar agora
-                    </button>
-                  </form>
-                </div>
-
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-100 backdrop-blur-xl sm:p-7">
-                  <h3 className="text-base font-semibold text-white">Dicas de segurança</h3>
-                  <ul className="mt-3 space-y-2 text-sm text-slate-200">
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                      Verifique se o nome e a matrícula inseridos correspondem aos dados cadastrados antes de prosseguir.
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                      Guarde o dispositivo em que sua identidade foi criada, pois a chave privada fica salva localmente.
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
-                      Em caso de perda do acesso, gere uma nova identidade e informe a organização responsável.
-                    </li>
-                  </ul>
-                </div>
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-100 backdrop-blur-xl sm:p-7">
+                <h3 className="text-base font-semibold text-white">Dicas de segurança</h3>
+                <ul className="mt-3 space-y-2 text-sm text-slate-200">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
+                    Verifique se o nome e a matrícula inseridos correspondem aos dados cadastrados antes de prosseguir.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
+                    Guarde o dispositivo em que sua identidade foi criada, pois a chave privada fica salva localmente.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-cyan-300" />
+                    Em caso de perda do acesso, gere uma nova identidade e informe a organização responsável.
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
